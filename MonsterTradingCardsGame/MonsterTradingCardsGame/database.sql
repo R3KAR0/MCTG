@@ -8,7 +8,8 @@ CREATE TABLE users (
     coins   	integer NOT NULL,
 	u_description varchar(2048),
 	picture 	bytea,
-	elo			integer NOT NULL
+	elo			integer NOT NULL,
+	CHECK(coins >= 0)
 );
 
 CREATE TABLE decks (
@@ -34,9 +35,10 @@ CREATE TABLE packages (
     p_id        	char(36) PRIMARY KEY,
     p_description 	varchar(2048) NOT NULL,
 	creationtime 	timestamp NOT NULL,
-	price			int NOT NULL,
+	price			integer NOT NULL,
 	buyer			char(36) NOT NULL,
-	CONSTRAINT fk_packages_user FOREIGN KEY(buyer) REFERENCES users(u_id)
+	CONSTRAINT fk_packages_user FOREIGN KEY(buyer) REFERENCES users(u_id),
+	CHECK(price >= 0)
 );
 
 CREATE TABLE cards (
@@ -50,7 +52,8 @@ CREATE TABLE cards (
 	u_id	char(36) NOT NULL,
 	p_id 	char(36) NOT NULL,
 	CONSTRAINT fk_card_user FOREIGN KEY(u_id) REFERENCES users(u_id),
-	CONSTRAINT fk_card_package FOREIGN KEY(p_id) REFERENCES packages(p_id) 
+	CONSTRAINT fk_card_package FOREIGN KEY(p_id) REFERENCES packages(p_id),
+	CHECK(damage >= 0)
 );
 
 
@@ -79,5 +82,14 @@ CREATE TABLE deck_card(
 	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
 	creationtime timestamp NOT NULL,
 	PRIMARY KEY(d_id, c_id)
+);
+
+CREATE TABLE trading_offer(
+	c_id char(36) PRIMARY KEY,
+	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	creationtime timestamp NOT NULL,
+	desiredType e_type NOT NULL,
+	minDamage integer NOT NULL,
+	CHECK(minDamage >= 0)
 );
 
