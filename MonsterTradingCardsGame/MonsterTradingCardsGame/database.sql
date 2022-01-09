@@ -63,10 +63,11 @@ CREATE TABLE auth_token(
 	valid_until timestamp NOT NULL
 );
 
-CREATE TABLE card_deck(
+CREATE TABLE deck_card(
 	d_id char(36) NOT NULL,
-	CONSTRAINT fk_stack FOREIGN KEY(d_id) REFERENCES deck(d_id),
+	CONSTRAINT fk_stack FOREIGN KEY(d_id) REFERENCES decks(d_id),
 	c_id char(36) NOT NULL,
 	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	creationtime timestamp NOT NULL,
 	PRIMARY KEY(d_id, c_id)
 );

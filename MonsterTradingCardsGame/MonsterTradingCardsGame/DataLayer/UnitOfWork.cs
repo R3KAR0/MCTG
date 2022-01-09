@@ -20,6 +20,7 @@ namespace MonsterTradingCardsGame.DataLayer
         private PackageRepository? packageRepository = null;
         private CardRepository? cardRepository = null;
         private DeckRepository? deckRepository = null;
+        private DeckCardRepository? deckCardRepository = null;
 
         public UserRepository UserRepository()
         {
@@ -64,6 +65,15 @@ namespace MonsterTradingCardsGame.DataLayer
                 deckRepository = new DeckRepository(npgsqlConnection);
             }
             return deckRepository;
+        }
+
+        public DeckCardRepository DeckCardRepository()
+        {
+            if (deckCardRepository == null)
+            {
+                deckCardRepository = new DeckCardRepository(npgsqlConnection);
+            }
+            return deckCardRepository;
         }
 
         public UnitOfWork()

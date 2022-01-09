@@ -1,8 +1,10 @@
-﻿using MonsterTradingCardsGame.DataLayer.DTO;
+﻿using MonsterTradingCardsGame.DataLayer;
+using MonsterTradingCardsGame.DataLayer.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.Server.Controller
@@ -24,8 +26,16 @@ namespace MonsterTradingCardsGame.Server.Controller
             {
                 try
                 {
-                    var cards = unit.CardRepository().GetByUserId(userID.Value);
-                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserCardsDTO(cards)), System.Net.HttpStatusCode.OK);
+                    var decks = unit.DeckRepository().GetByUserId(userID.Value);
+                    foreach (var deck in decks)
+                    {
+                        var deckCards = unit.DeckCardRepository().GetByDeckId(deck.Id);
+                        foreach (var deckcard in deckCards)
+                        {
+                            deck.Cards.Add(unit.CardRepository().GetById(deckcard.CardId));
+                        }
+                    }
+                    return new JsonResponseDTO(JsonSerializer.Serialize(new DecksDTO(decks)), System.Net.HttpStatusCode.OK);
 
                 }
                 catch (Exception)

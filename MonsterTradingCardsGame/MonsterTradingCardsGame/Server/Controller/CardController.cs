@@ -37,7 +37,6 @@ namespace MonsterTradingCardsGame.Server.Controller
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
                 }
             }
-
         }
     }
 }

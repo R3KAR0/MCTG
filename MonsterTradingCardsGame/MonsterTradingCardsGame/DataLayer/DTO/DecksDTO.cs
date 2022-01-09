@@ -8,15 +8,14 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.DataLayer.DTO
 {
-    public class UserCardsDTO
+    public class DecksDTO
     {
-        public UserCardsDTO(List<Card> cards)
+        public DecksDTO(List<Deck> decks)
         {
-            Cards = cards;
+            Decks = decks;
         }
 
-        [JsonPropertyName("cards")]
-        public List<Card> Cards { get; private set; } 
-
+        [JsonPropertyName("decks")]
+        public List<Deck> Decks { get; private set; }
     }
 }

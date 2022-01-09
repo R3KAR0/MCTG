@@ -39,7 +39,6 @@ namespace MonsterTradingCardsGame.Models
         [JsonPropertyName("timestamp")]
         public DateTime CreationDate { get; private set; }
 
-
         [JsonPropertyName("cards")]
         public List<Card> Cards { get; set; }
 

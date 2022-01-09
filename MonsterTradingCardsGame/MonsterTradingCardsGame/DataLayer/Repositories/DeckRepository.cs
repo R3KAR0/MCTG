@@ -57,28 +57,23 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             throw new NotImplementedException();
         }
 
-        public Deck? GetByUserId(Guid id)
+        public List<Deck> GetByUserId(Guid id)
         {
             using var cmd = new NpgsqlCommand("SELECT * FROM decks WHERE u_id=@u_id", npgsqlConnection);
 
             cmd.Parameters.AddWithValue("u_id", id.ToString());
 
-            List<Card> cards = new List<Card>();
+            List<Deck> decks = new List<Deck>();
             using (var reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    cards.Add(new Card(
-                        new Guid(reader.GetString(reader.GetOrdinal("c_id"))),
+                    decks.Add(new Deck(new Guid(reader.GetString(reader.GetOrdinal("d_id"))),
                         new Guid(reader.GetString(reader.GetOrdinal("u_id"))),
-                        new Guid(reader.GetString(reader.GetOrdinal("p_id"))),
-                        reader.GetString(reader.GetOrdinal("c_description")),
-                        reader.GetFieldValue<EType>(reader.GetOrdinal("c_type")),
-                        reader.GetFieldValue<EKind>(reader.GetOrdinal("c_kind")),
-                        reader.GetFieldValue<EElement>(reader.GetOrdinal("c_element")),
-                        reader.GetInt32(reader.GetOrdinal("damage"))));
+                        reader.GetString(reader.GetOrdinal("d_description")),
+                        reader.GetDateTime(reader.GetOrdinal("creationtime"))));
                 }
-                return cards;
+                return decks;
             }
         }
 
