@@ -3,6 +3,33 @@
 	Christian Lauer (if21b064)
 **************************************
 
+Adaptionen der Angabe und Begründung:
+1) Authentifizierung wurde mit echten AES-verschlüsselten Token umgesetzt, da Klartext Token ohne verschlüsselter Signatur keine Sicherheit bieten würden
+2) GET /localhost/users/{username} wurde auf GET /localhost/users geändert, da ein Authentifizierungstoken mitgegeben werden muss und
+	der username zum Login dient (dieser sollte somit NICHT in einer GET Adresse vorkommen)
+   
+Die Herangehensweise für GET /localhost/users/{username} hätte folgendermaßen ausgesehen:
+**************************************
+Herangehensweise für GET /localhost/users/{username} START
+**************************************
+Da laut Angabe nicht auf ASP.NET zurückgegriffen werden darf, müssen Routen händisch registriert werden.
+Dies wurde mittels Reflections und einem Dictionary, welches die Route+HTTPMethode auf einen Controller und 
+dessen zugehörige Funktion mappt.
+
+Um dynamische Routen zu implementieren, müsste hierbei eine Route nach der Erstellung eines neuen Nutzers eingetragen werden.
+Zudem müsste beim Startup für jeden User-Eintrag in der DB eine Route geladen hinzugefügt werden.
+**************************************
+Herangehensweise für GET /localhost/users/{username} END
+**************************************
+ 3) Der Einfachheit halber wurde PUT /localhost/users/{username} auf PUT /localhost/users geändert, da hierbei ebenfalls der 
+    Token mitgegeben wird. 
+    Falls die Routen benötigt werden würden (z.B.: um einem Admin die Veränderung von Userdaten zu ermöglichen, 
+    was de facto auch ein Sicherheitsproblem bedingen würde), würde dies wie bei GET /localhost/users/{username} umgesetzt werden.
+
+ 4) Im Curl-Skript findet sich ein Request für verschiedene "Darstellungsformen" der Decks. Da es hierzu keine Angabe 
+    bzw. keine Beschreibung in der Angabe gibt, wurde dies nicht umgesetzt. 
+
+
 
 
 
@@ -18,7 +45,7 @@ beziehungsweise über die Console mit:
 sudo docker run -d --name=postgres13 -p 5432:5432 -v postgres-volume:/var/lib/postgresql/data -e POSTGRES_PASSWORD=[your_password] postgres
 
 **************************************
-		POSTGRE DOCKERFILE START
+	POSTGRE DOCKERFILE START
 **************************************
 FROM ubuntu:16.04
 RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8

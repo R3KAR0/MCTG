@@ -82,5 +82,48 @@ namespace MonsterTradingCardsGame.Server.Controller
             return new JsonResponseDTO("", System.Net.HttpStatusCode.Created);
         }
 
+        [Authentification]
+        [EndPointAttribute("/users", "GET")]
+        public static JsonResponseDTO GetUserInformation(string token, string content)
+        {
+            User? user = SecurityHelper.GetUserFromToken(token);
+            if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+            return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.ProfileDescription, user.Picture, user.BattlePower)), System.Net.HttpStatusCode.OK);
+        }
+
+        [Authentification]
+        [EndPointAttribute("/users", "PUT")]
+        public static JsonResponseDTO UpdateUserInformation(string token, string content)
+        {
+            UserUpdateDTO? userUpdate;
+            User? user = SecurityHelper.GetUserFromToken(token);
+            if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+            try
+            {
+                userUpdate = JsonSerializer.Deserialize<UserUpdateDTO>(content);
+                if (userUpdate == null) throw new InvalidDataException();
+
+                if(userUpdate.NewPassword == null)
+                {
+                    userUpdate.NewPassword = user.Password;
+                }
+                if(userUpdate.NewPicture == null)
+                {
+                    userUpdate.NewPicture = user.Picture;
+                }
+
+                using (var uow = new UnitOfWork())
+                {
+                    user = uow.UserRepository().Update(new User(user.Username,user.ID, userUpdate.NewPassword,user.Coins, userUpdate.NewProfileDescription, userUpdate.NewPicture));
+                }
+                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.ProfileDescription, user.Picture, user.BattlePower)), System.Net.HttpStatusCode.OK);
+            }
+            catch (Exception)
+            {
+                return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+            }
+        }
+
     }
 }

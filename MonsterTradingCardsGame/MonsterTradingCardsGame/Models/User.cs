@@ -28,6 +28,16 @@ namespace MonsterTradingCardsGame.Models
             ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
         }
 
+        public User(string username, Guid iD, string password, int coins, string profileDescription, byte[]? picture)
+        {
+            Username = username ?? throw new ArgumentNullException(nameof(username));
+            ID = iD;
+            Password = password ?? throw new ArgumentNullException(nameof(password));
+            Coins = coins;
+            ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
+            Picture = picture;
+        }
+
         [JsonPropertyName("username")]
         public string Username { get; private set; }
 

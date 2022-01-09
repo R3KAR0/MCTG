@@ -18,7 +18,7 @@ namespace MonsterTradingCardsGame.Server.Controller
 
         [Authentification]
         [EndPointAttribute("/cards", "GET")]
-        public static JsonResponseDTO GetUserCards(string token, string loginContent)
+        public static JsonResponseDTO GetUserCards(string token, string content)
         {
             Guid? userID = SecurityHelper.GetUserIdFromToken(token); 
             if(userID == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
