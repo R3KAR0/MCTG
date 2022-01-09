@@ -93,3 +93,11 @@ CREATE TABLE trading_offer(
 	CHECK(minDamage >= 0)
 );
 
+CREATE TABLE selling_offer(
+	c_id char(36) PRIMARY KEY,
+	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	creationtime timestamp NOT NULL,
+	price 	integer NOT NULL,
+	CHECK(price >= 0)
+);
+
