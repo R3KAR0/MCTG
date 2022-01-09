@@ -23,7 +23,7 @@ namespace MonsterTradingCardsGame.Server.Controller
             User? user = SecurityHelper.GetUserFromToken(auth);
             if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
 
-            var package = new Package(user.ID);
+            var package = new Package(user.Id);
             if (user.Coins - package.Price < 0) return new JsonResponseDTO("", System.Net.HttpStatusCode.PaymentRequired);
 
             using (var uow = new UnitOfWork())

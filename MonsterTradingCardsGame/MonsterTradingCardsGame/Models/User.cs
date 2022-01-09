@@ -9,7 +9,7 @@ namespace MonsterTradingCardsGame.Models
         public User(string username, string password)
         {
             Username = username ?? throw new ArgumentNullException(nameof(username));
-            ID = Guid.NewGuid();
+            Id = Guid.NewGuid();
             Password = SecurityHelper.sha256_hash(password) ?? throw new ArgumentNullException(nameof(password));
             Coins = 20; // hardcoded? -> Config
             UserDeck = new List<Card>();
@@ -22,17 +22,18 @@ namespace MonsterTradingCardsGame.Models
         public User(string username, Guid iD, string password, int coins, string profileDescription, int elo)
         {
             Username = username ?? throw new ArgumentNullException(nameof(username));
-            ID = iD;
+            Id = iD;
             Password = password ?? throw new ArgumentNullException(nameof(password));
             Coins = coins;
             ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
             Elo = elo;
+
         }
 
         public User(string username, Guid iD, string password, int coins, string profileDescription, byte[]? picture, int elo)
         {
             Username = username ?? throw new ArgumentNullException(nameof(username));
-            ID = iD;
+            Id = iD;
             Password = password ?? throw new ArgumentNullException(nameof(password));
             Coins = coins;
             ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
@@ -44,7 +45,7 @@ namespace MonsterTradingCardsGame.Models
         public string Username { get; private set; }
 
         [JsonPropertyName("id")]
-        public Guid ID { get; private set; }
+        public Guid Id { get; private set; }
 
         //[JsonPropertyName("password")] should not be transfered!
         public string Password { get; private set; }

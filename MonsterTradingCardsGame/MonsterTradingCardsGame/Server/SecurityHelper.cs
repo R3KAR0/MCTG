@@ -28,7 +28,7 @@ namespace MonsterTradingCardsGame.Server
             using (var unit = new UnitOfWork())
             {
                 var user = unit.UserRepository().GetByUsername(username);
-                unit.TokenRepository().Add(new AuthToken(user.ID, validUntil));
+                unit.TokenRepository().Add(new AuthToken(user.Id, validUntil));
             }
             return token;
         }
@@ -111,7 +111,7 @@ namespace MonsterTradingCardsGame.Server
                 DateTime? validityOfToken;
                 using (var unit = new UnitOfWork())
                 {
-                    userGuid = unit?.UserRepository()?.GetByUsername(splitted[0])?.ID;
+                    userGuid = unit?.UserRepository()?.GetByUsername(splitted[0])?.Id;
                     validityOfToken = Convert.ToDateTime(unit?.TokenRepository()?.GetById(userGuid)?.Validity);
                 }
                 if(userGuid == null || validityOfToken == null)
@@ -147,7 +147,7 @@ namespace MonsterTradingCardsGame.Server
             var splitted = decryptedToken.Split(".");
             using (var unit = new UnitOfWork())
             {
-                return unit?.UserRepository()?.GetByUsername(splitted[0])?.ID;
+                return unit?.UserRepository()?.GetByUsername(splitted[0])?.Id;
             }
         }
 

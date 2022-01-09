@@ -126,7 +126,7 @@ namespace MonsterTradingCardsGame.Server.Controller
 
                 using (var uow = new UnitOfWork())
                 {
-                    user = uow.UserRepository().Update(new User(user.Username,user.ID, userUpdate.NewPassword,user.Coins, userUpdate.NewProfileDescription, userUpdate.NewPicture, user.Elo));
+                    user = uow.UserRepository().Update(new User(user.Username,user.Id, userUpdate.NewPassword,user.Coins, userUpdate.NewProfileDescription, userUpdate.NewPicture, user.Elo));
                 }
                     return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.ProfileDescription, user.Picture, user.Elo)), System.Net.HttpStatusCode.OK);
             }

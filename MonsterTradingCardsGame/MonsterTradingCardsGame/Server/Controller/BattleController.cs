@@ -16,7 +16,7 @@ namespace MonsterTradingCardsGame.Server.Controller
 
         [Authentification]
         [EndPointAttribute("/battle", "POST")]
-        public static JsonResponseDTO GetUserStats(string token, string content)
+        public static JsonResponseDTO QueueForBattle(string token, string content)
         {
             var userId = SecurityHelper.GetUserIdFromToken(token);
             if (userId == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
@@ -27,8 +27,8 @@ namespace MonsterTradingCardsGame.Server.Controller
             {
                 try
                 {
-             
-                    //return new JsonResponseDTO(JsonSerializer.Serialize(new BattleResultsRepresentation(wins, loses, draws, elo)), System.Net.HttpStatusCode.OK);
+                    var res = BattleHandler.Battle(userId);
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.OK);
 
                 }
                 catch (Exception)

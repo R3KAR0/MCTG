@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.Server.Controller
 {
-    public  class DeckController : IController
+    public class DeckController : IController
     {
         private static readonly Lazy<UserController> userController = new Lazy<UserController>(() => new UserController());
 
@@ -62,14 +62,14 @@ namespace MonsterTradingCardsGame.Server.Controller
                 try
                 {
                     cardIdsDTO = JsonSerializer.Deserialize<CardIdListDeckDTO>(content);
-                    if(cardIdsDTO.CardIds.Count != Program.GetConfigMapper().DeckSize)
+                    if (cardIdsDTO.CardIds.Count != Program.GetConfigMapper().DeckSize)
                     {
                         throw new InvalidDataException();
                     }
                     var deck = unit.DeckRepository().GetById(cardIdsDTO.DeckId);
-                    if(deck.UserId != userID)
+                    if (deck.UserId != userID)
                     {
-                       throw new NotAuthorizedException();
+                        throw new NotAuthorizedException();
                     }
                     foreach (var cardId in cardIdsDTO.CardIds)
                     {
@@ -78,11 +78,11 @@ namespace MonsterTradingCardsGame.Server.Controller
                         {
                             throw new NotAuthorizedException();
                         }
-                        unit.DeckCardRepository().Add(new DeckCard(deck.Id, card.Id));                  
+                        unit.DeckCardRepository().Add(new DeckCard(deck.Id, card.Id));
                     }
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.Accepted);
                 }
-                catch(NotAuthorizedException)
+                catch (NotAuthorizedException)
                 {
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
                 }
@@ -92,7 +92,41 @@ namespace MonsterTradingCardsGame.Server.Controller
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
                 }
             }
-
         }
-    }
+
+        [Authentification]
+        [EndPointAttribute("/decks", "POST")]
+        public static JsonResponseDTO SelectDeck(string token, string content)
+        {
+            DeckSelectionDTO deckSelectionDTO;
+            var user = SecurityHelper.GetUserFromToken(token);
+            if (user.Id == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+
+            using (UnitOfWork unit = new UnitOfWork())
+            {
+                try
+                {
+                    deckSelectionDTO = JsonSerializer.Deserialize<DeckSelectionDTO>(content);
+
+                    var deck = unit.DeckRepository().GetById(deckSelectionDTO.DeckId.Value);
+                    if (deck.UserId != user.Id)
+                    {
+                        throw new NotAuthorizedException();
+                    }
+                    unit.UserRepository().UpdateSelectedDeck(user, deckSelectionDTO.DeckId.Value);
+
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.Accepted);
+                }
+                catch (NotAuthorizedException)
+                {
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+                }
+                catch (Exception)
+                {
+                    unit.Rollback();
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+        }
+    } 
 }

@@ -20,15 +20,15 @@ namespace MonsterTradingCardsGame.Server.Controller
         public static JsonResponseDTO GetUserStats(string token, string content)
         {
             var user = SecurityHelper.GetUserFromToken(token);
-            if (user.ID == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+            if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
 
             using (UnitOfWork unit = new UnitOfWork())
             {
                 try
                 {
-                    var results = unit.StatisticRepository().GetBattleResultsByUserId(user.ID);
-                    var wins = results.Where(result => result.Winner == user.ID).ToList().Count;
-                    var loses = results.Where(result => result.Winner != user.ID).ToList().Count;
+                    var results = unit.StatisticRepository().GetBattleResultsByUserId(user.Id);
+                    var wins = results.Where(result => result.Winner == user.Id).ToList().Count;
+                    var loses = results.Where(result => result.Winner != user.Id).ToList().Count;
                     var draws = results.Where(result => result.Winner == null).ToList().Count;
 
                     var elo = user.Elo;

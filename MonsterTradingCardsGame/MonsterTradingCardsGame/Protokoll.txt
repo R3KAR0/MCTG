@@ -30,6 +30,8 @@ Herangehensweise für GET /localhost/users/{username} END
  4) Im Curl-Skript findet sich ein Request für verschiedene "Darstellungsformen" der Decks. Da es hierzu keine Angabe 
     bzw. keine Beschreibung in der Angabe gibt, wurde dies nicht umgesetzt. 
 
+ 5) Beim Trading wurde auch auf die TradeId in der Route verzichtet und über den Body als json-DTO übergeben.
+
 
 
 

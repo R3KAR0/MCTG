@@ -22,7 +22,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         {
             using var cmd = new NpgsqlCommand("INSERT INTO users (u_id, username, u_password, coins, u_description, picture, elo) VALUES ((@u_id), (@username), (@u_password), (@coins), (@u_description), (@picture), (@elo))", npgsqlConnection);
 
-            cmd.Parameters.AddWithValue("u_id", obj.ID.ToString());
+            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
             cmd.Parameters.AddWithValue("username", obj.Username);
             cmd.Parameters.AddWithValue("u_password", obj.Password);
             cmd.Parameters.AddWithValue("coins", obj.Coins);
@@ -53,7 +53,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         {
             using var cmd = new NpgsqlCommand("DELETE FROM users WHERE u_id=@u_id", npgsqlConnection);
 
-            cmd.Parameters.AddWithValue("u_id", obj.ID.ToString());
+            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
 
             cmd.Prepare();
             int res = cmd.ExecuteNonQuery();
@@ -136,7 +136,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         {
             using var cmd = new NpgsqlCommand("UPDATE users SET username=@username,u_password=@u_password,coins=@coins,u_description=@u_description,picture=@picture WHERE u_id=@u_id", npgsqlConnection);
 
-            cmd.Parameters.AddWithValue("u_id", obj.ID.ToString());
+            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
             cmd.Parameters.AddWithValue("username", obj.Username);
             cmd.Parameters.AddWithValue("u_password", obj.Password);
             cmd.Parameters.AddWithValue("coins", obj.Coins);
@@ -154,7 +154,34 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             int res = cmd.ExecuteNonQuery();
             if (res != 0)
             {
-                return obj;
+                return GetById(obj.Id);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public User? UpdateSelectedDeck(User obj, Guid selectedDeck)
+        {
+            using var cmd = new NpgsqlCommand("UPDATE users SET d_id=@d_id WHERE u_id=@u_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
+            cmd.Parameters.AddWithValue("d_id", selectedDeck);
+            if (obj.Picture == null)
+            {
+                cmd.Parameters.AddWithValue("picture", DBNull.Value);
+            }
+            else
+            {
+                cmd.Parameters.AddWithValue("picture", obj.Picture);
+            }
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+            if (res != 0)
+            {
+                return GetById(obj.Id);
             }
             else
             {
@@ -187,7 +214,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         {
             using var cmd = new NpgsqlCommand("UPDATE users SET elo=@elo WHERE u_id=@u_id", npgsqlConnection);
 
-            cmd.Parameters.AddWithValue("u_id", obj.ID.ToString());
+            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
             cmd.Parameters.AddWithValue("elo", obj.Elo+change);
 
             cmd.Prepare();

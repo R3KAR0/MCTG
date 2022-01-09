@@ -104,7 +104,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             int res = cmd.ExecuteNonQuery();
             if (res != 0)
             {
-                return obj;
+                return GetById(obj.UserId);
             }
             else
             {

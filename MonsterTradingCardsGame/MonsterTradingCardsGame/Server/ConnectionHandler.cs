@@ -84,7 +84,6 @@ namespace MonsterTradingCardsGame.Server
         }
 
 
-        //}\n BUG
         private static HTTPMessage ReadHTTPMessage(TcpClient client)
         {
             string data = "";
@@ -113,25 +112,24 @@ namespace MonsterTradingCardsGame.Server
             {
 
                 int brackets = 0;
+                char c;
                 do
                 {
-                    line = reader.ReadLine();
-                    if (line == null)
+                    c = (char)reader.Read();
+                    if (c == -1)
                     {
                         break;
                     }
-                    int c1 = line.Where(c => c == '{').Count();
-                    int c2 = line.Where(c => c == '}').Count();
-                    if (c1 != 0)
+                    if (c == '{')
                     {
-                        brackets += c1;
+                        brackets += 1;
                     }
-                    if (c2 != 0)
+                    if (c == '}')
                     {
-                        brackets -= c2;
+                        brackets -= 1;
                     }
 
-                    data += line;
+                    data += c.ToString();
 
                 } while (brackets != 0);
             }

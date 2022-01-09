@@ -11,6 +11,21 @@ CREATE TABLE users (
 	elo			integer NOT NULL
 );
 
+CREATE TABLE decks (
+	d_id 			char(36) PRIMARY KEY,
+	d_description 	char(2048) NOT NULL,
+	creationtime 	timestamp NOT NULL,
+	u_id			char(36) NOT NULL,
+	CONSTRAINT fk_deck_user FOREIGN KEY(u_id) REFERENCES users(u_id) 
+);
+
+CREATE TABLE user_selected_deck (
+	u_id	char(36) PRIMARY KEY,
+	d_id 	char(36) NOT NULL,
+	CONSTRAINT fk_user_selected_deck_user FOREIGN KEY(u_id) REFERENCES users(u_id),
+	CONSTRAINT fk_user_selected_deck_deck FOREIGN KEY(d_id) REFERENCES decks(d_id)  
+);
+
 CREATE TYPE e_kind AS ENUM ('spell', 'goblin', 'dragon', 'orc', 'knight', 'kraken', 'elves');
 CREATE TYPE e_type AS ENUM ('spell', 'monster');
 CREATE TYPE e_element AS ENUM ('fire', 'water', 'neutral');
@@ -38,13 +53,7 @@ CREATE TABLE cards (
 	CONSTRAINT fk_card_package FOREIGN KEY(p_id) REFERENCES packages(p_id) 
 );
 
-CREATE TABLE decks (
-	d_id 			char(36) PRIMARY KEY,
-	d_description 	char(2048) NOT NULL,
-	creationtime 	timestamp NOT NULL,
-	u_id			char(36) NOT NULL,
-	CONSTRAINT fk_stack_user FOREIGN KEY(u_id) REFERENCES users(u_id) 
-);
+
 
 CREATE TABLE battleResults (
     br_id       char(36) PRIMARY KEY,
@@ -71,3 +80,4 @@ CREATE TABLE deck_card(
 	creationtime timestamp NOT NULL,
 	PRIMARY KEY(d_id, c_id)
 );
+
