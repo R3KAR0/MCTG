@@ -16,7 +16,7 @@ namespace MonsterTradingCardsGame.Server
         private static object hardlock = new();
         static List<Guid?> queue = new List<Guid?>();
 
-        public static async Task<BattleLog> Battle(Guid? guid)
+        public static async Task<BattleLog> Battle(Guid guid)
         { 
             lock(queueLock)
             {
@@ -26,7 +26,7 @@ namespace MonsterTradingCardsGame.Server
             return res;
         }
 
-        public static async Task<BattleLog> Calculate(Guid? guid)
+        public static async Task<BattleLog> Calculate(Guid guid)
         {
             while(queue.Count < 2)
             {
@@ -34,20 +34,25 @@ namespace MonsterTradingCardsGame.Server
             }
             lock (queueLock)
             {
+                var user1 = queue.First();
+                queue.Remove(user1);
+                var user2 = queue.First();
+                queue.Remove(user2);
+                var decks = GetDecks(user1.Value, user2.Value);
+                var res = Calculate(user1.Value, user2.Value, decks.Item1, decks.Item2);
 
-                queue.Remove(guid);
             }
             return new BattleLog(new List<string>(), new Guid(), new Guid(), null);
         }
 
-        private static Tuple<Guid?,List<string>> Calculate(Guid user1, Guid user2)
+        private static Tuple<List<Card>,List<Card>> GetDecks(Guid user1, Guid user2)
         {
-            List<Card> user1Deck = new List<Card>();
+           /* List<Card> user1Deck = new List<Card>();
             List<Card> user2Deck = new List<Card>();
-            List<string> roundLog = new List<string>();
+
             using (var uow = new UnitOfWork())
             {
-                var deckCards = uow.DeckCardRepository().GetByDeckId(uow.UserRepository().GetById(user1).DeckId.Value);
+                var deckCards = uow.DeckCardRepository().GetByDeckId(uow.UserRepository().GetById(user1).Value);
                 user1Deck = new List<Card>();
                 foreach (var deckCard in deckCards)
                 {
@@ -62,6 +67,14 @@ namespace MonsterTradingCardsGame.Server
                 }
             }
 
+            return Tuple.Create(user1Deck, user2Deck);*/
+           throw new NotImplementedException();
+
+        }
+
+        public static Tuple<Guid?, List<string>> Calculate(Guid user1, Guid user2, List<Card> user1Deck, List<Card> user2Deck)
+        {
+            List<string> roundLog = new List<string>();
             var random = new Random();
             int round = 1;
             var mapper = Program.GetRulesMapper();
@@ -74,36 +87,38 @@ namespace MonsterTradingCardsGame.Server
                 var user2Card = user2Deck[random.Next(user2Deck.Count)];
 
 
-                var specialRulesUser1 = mapper.specialRules.Where(rule => rule.element == user1Card.Element && rule.type == user1Card.CardType && rule.kind == user1Card.Kind).ToList();
-                var specialRulesUser2 = mapper.specialRules.Where(rule => rule.element == user1Card.Element && rule.type == user1Card.CardType && rule.kind == user1Card.Kind).ToList();
+                var specialRulesUser1 = mapper.SpecialRules.Where(rule => rule.element == user1Card.Element && rule.type == user1Card.CardType && rule.kind == user1Card.Kind).ToList();
+                var specialRulesUser2 = mapper.SpecialRules.Where(rule => rule.element == user2Card.Element && rule.type == user2Card.CardType && rule.kind == user2Card.Kind).ToList();
 
                 var applicable1 = specialRulesUser1.Where(rule => rule.killkind == user2Card.Kind && rule.killtype == user2Card.CardType).ToList();
                 if (applicable1.Count > 0)
                 {
-                    if(applicable1.Any(rule => rule.element == EElement.ALL || rule.element == user2Card.Element))
+                    if (applicable1.Any(rule => rule.killelement == EElement.ALL || rule.killelement == user2Card.Element))
                     {
-                        var res = $"BATTLE between {user1} and {user2} Round: {round}, {user1} won with special rule: {applicable1.Where(rule => rule.element == EElement.ALL).First().KillText}";
+                        var res = $"BATTLE between {user1} and {user2} Round: {round}, {user1} won with special rule: {applicable1.Where(rule => rule.killelement == EElement.ALL || rule.killelement == user2Card.Element).First().KillText}";
                         Log.Information(res);
                         roundLog.Add(res);
                         user1Deck.Add(user2Card);
                         user2Deck.Remove(user2Card);
+                        continue;
                     }
                 }
 
                 var applicable2 = specialRulesUser2.Where(rule => rule.killkind == user1Card.Kind && rule.killtype == user1Card.CardType).ToList();
                 if (applicable2.Count > 0)
                 {
-                    if (applicable2.Any(rule => rule.element == EElement.ALL || rule.element == user1Card.Element))
+                    if (applicable2.Any(rule => rule.killelement == EElement.ALL || rule.killelement == user1Card.Element))
                     {
-                        var res = $"BATTLE between {user1} and {user2} Round: {round}, {user2} won with special rule: {applicable2.Where(rule => rule.element == EElement.ALL).First().KillText}";
+                        var res = $"BATTLE between {user1} and {user2} Round: {round}, {user2} won with special rule: {applicable2.Where(rule => rule.killelement == EElement.ALL || rule.killelement == user1Card.Element).First().KillText}";
                         Log.Information(res);
                         roundLog.Add(res);
                         user2Deck.Add(user1Card);
                         user1Deck.Remove(user1Card);
+                        continue;
                     }
                 }
 
-                if(user1Card.CardType != EType.MONSTER || user2Card.CardType != EType.SPELL)
+                if (user1Card.CardType != EType.MONSTER || user2Card.CardType != EType.SPELL)
                 {
                     var strongs1 = mapper.Strongs.Exists(strong => strong.StrongElement == user1Card.Element && strong.WeakElement == user2Card.Element);
                     var strongs2 = mapper.Strongs.Exists(strong => strong.StrongElement == user2Card.Element && strong.WeakElement == user1Card.Element);
@@ -128,6 +143,7 @@ namespace MonsterTradingCardsGame.Server
                     roundLog.Add(res);
                     user2Deck.Add(user1Card);
                     user1Deck.Remove(user1Card);
+                    continue;
                 }
                 else if (user1Card.Damage * user1multiplier == user2Card.Damage * user2multiplier)
                 {
@@ -143,10 +159,11 @@ namespace MonsterTradingCardsGame.Server
                     roundLog.Add(res);
                     user1Deck.Add(user2Card);
                     user2Deck.Remove(user2Card);
-                } 
+                    continue;
+                }
             }
             Guid? winner = null;
-            if(user1Deck.Count == 0)
+            if (user1Deck.Count == 0)
             {
                 winner = user2;
             }
@@ -154,8 +171,8 @@ namespace MonsterTradingCardsGame.Server
             {
                 winner = user1;
             }
-            
-            if(winner != null)
+
+            if (winner != null)
             {
                 Log.Information($"Winner: {winner}");
             }

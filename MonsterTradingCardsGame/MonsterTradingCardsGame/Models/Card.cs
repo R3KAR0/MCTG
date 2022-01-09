@@ -24,7 +24,9 @@ namespace MonsterTradingCardsGame.Models
         [EnumMember(Value = "KRAKEN")]
         KRAKEN,
         [EnumMember(Value = "ELVES")]
-        ELVES 
+        ELVES,
+        [EnumMember(Value = "WIZZARD")]
+        WIZZARD
     }
 
     public enum EType {

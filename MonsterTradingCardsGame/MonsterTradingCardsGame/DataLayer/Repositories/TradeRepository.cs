@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
-    public class TradeRepository : IRepository<Trade>
+    public class TradeRepository : IRepository<TradeRecord>
     {
-        public Trade? Add(Trade obj)
+        public TradeRecord? Add(TradeRecord obj)
         {
             throw new NotImplementedException();
         }
 
-        public bool Delete(Trade obj)
+        public bool Delete(TradeRecord obj)
         {
             throw new NotImplementedException();
         }
@@ -24,17 +24,17 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             throw new NotImplementedException();
         }
 
-        public List<Trade?> GetAll()
+        public List<TradeRecord?> GetAll()
         {
             throw new NotImplementedException();
         }
 
-        public Trade? GetById(Guid id)
+        public TradeRecord? GetById(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public Trade? Update(Trade obj)
+        public TradeRecord? Update(TradeRecord obj)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,4 @@
-﻿using MonsterTradingCardsGame.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.Models
 {
-    public class Trade : IJsonConvertable
+    internal class BuyRecord
     {
         [JsonPropertyName("seller")]
         public Guid SellerId { get; private set; }
@@ -17,18 +16,18 @@ namespace MonsterTradingCardsGame.Models
 
         [JsonPropertyName("sellerCard")]
         public Guid SellerCardId { get; private set; }
-        [JsonPropertyName("buyerCard")]
-        public Guid BuyerCardId { get; private set; }
+        [JsonPropertyName("amount")]
+        public int Amount { get; private set; }
 
         [JsonPropertyName("timestamp")]
         public DateTime TimeStamp { get; private set; }
 
-        public Trade(Guid sellerId, Guid buyerId, Guid sellerCardId, Guid buyerCardId)
+        public BuyRecord(Guid sellerId, Guid buyerId, Guid sellerCardId, int amount)
         {
             SellerId = sellerId;
             BuyerId = buyerId;
             SellerCardId = sellerCardId;
-            BuyerCardId = buyerCardId;
+            Amount = amount;
             TimeStamp = DateTime.Now;
         }
     }

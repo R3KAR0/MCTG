@@ -56,8 +56,6 @@ CREATE TABLE cards (
 	CHECK(damage >= 0)
 );
 
-
-
 CREATE TABLE battleResults (
     br_id       char(36) PRIMARY KEY,
     user1		char(36) NOT NULL,
@@ -79,14 +77,14 @@ CREATE TABLE deck_card(
 	d_id char(36) NOT NULL,
 	CONSTRAINT fk_stack FOREIGN KEY(d_id) REFERENCES decks(d_id),
 	c_id char(36) NOT NULL,
-	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	CONSTRAINT fk_deck_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
 	creationtime timestamp NOT NULL,
 	PRIMARY KEY(d_id, c_id)
 );
 
 CREATE TABLE trading_offer(
 	c_id char(36) PRIMARY KEY,
-	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	CONSTRAINT fk_trading_offer_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
 	creationtime timestamp NOT NULL,
 	desiredType e_type NOT NULL,
 	minDamage integer NOT NULL,
@@ -95,9 +93,35 @@ CREATE TABLE trading_offer(
 
 CREATE TABLE selling_offer(
 	c_id char(36) PRIMARY KEY,
-	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	CONSTRAINT fk_selling_offer_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
 	creationtime timestamp NOT NULL,
 	price 	integer NOT NULL,
 	CHECK(price >= 0)
+);
+
+CREATE TABLE trading_record(
+	tr_id	char(36) PRIMARY KEY,
+	buyer	char(36) NOT NULL,
+	seller	char(36) NOT NULL,
+	buyer_card_id char(36) NOT NULL,
+	seller_card_id char(36) NOT NULL,
+	creationtime timestamp NOT NULL,
+	CONSTRAINT fk_trading_record_buyer FOREIGN KEY(buyer) REFERENCES users(u_id),
+	CONSTRAINT fk_trading_record_seller FOREIGN KEY(seller) REFERENCES users(u_id),
+	CONSTRAINT fk_trading_record_buyer_card FOREIGN KEY(buyer_card_id) REFERENCES cards(c_id),
+	CONSTRAINT fk_trading_record_seller_card FOREIGN KEY(seller_card_id) REFERENCES cards(c_id)
+);
+
+CREATE TABLE selling_record(
+	sr_id	char(36) PRIMARY KEY,
+	buyer	char(36) NOT NULL,
+	seller	char(36) NOT NULL,
+	seller_card_id char(36) NOT NULL,
+	creationtime timestamp NOT NULL,
+	price 	integer NOT NULL,
+	CHECK(price >= 0),
+	CONSTRAINT fk_selling_record_buyer FOREIGN KEY(buyer) REFERENCES users(u_id),
+	CONSTRAINT fk_selling_record_seller FOREIGN KEY(seller) REFERENCES users(u_id),
+	CONSTRAINT fk_selling_record_seller_card FOREIGN KEY(seller_card_id) REFERENCES cards(c_id)
 );
 

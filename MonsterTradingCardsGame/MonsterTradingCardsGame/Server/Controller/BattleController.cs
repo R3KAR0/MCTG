@@ -27,7 +27,7 @@ namespace MonsterTradingCardsGame.Server.Controller
             {
                 try
                 {
-                    var res = BattleHandler.Battle(userId);
+                    var res = BattleHandler.Battle(userId.Value);
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.OK);
 
                 }

@@ -58,7 +58,7 @@ namespace MonsterTradingCardsGame
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.File("..\\Logs\\UserLog-{Date}.txt")
+                .WriteTo.File("..\\Logs\\Log.txt")
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 

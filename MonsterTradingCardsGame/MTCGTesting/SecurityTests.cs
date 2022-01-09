@@ -1,4 +1,5 @@
 ﻿using MonsterTradingCardsGame;
+using MonsterTradingCardsGame.Mapper;
 using MonsterTradingCardsGame.Server;
 using NUnit.Framework;
 using System;

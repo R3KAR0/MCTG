@@ -11,14 +11,14 @@ namespace MonsterTradingCardsGame.Mapper
     {
         public RulesMapper(List<SpecialRule> specialRules, List<Strong> strongs)
         {
-            this.specialRules = specialRules ?? throw new ArgumentNullException(nameof(specialRules));
+            this.SpecialRules = specialRules ?? throw new ArgumentNullException(nameof(specialRules));
             Strongs = strongs ?? throw new ArgumentNullException(nameof(strongs));
         }
 
-        [JsonPropertyName("specialRules")]
-        public List<SpecialRule> specialRules { get; private set; }
+        [JsonPropertyName("SpecialRules")]
+        public List<SpecialRule> SpecialRules { get; private set; }
 
-        [JsonPropertyName("strong")]
+        [JsonPropertyName("Strongs")]
         public List<Strong> Strongs { get; private set; }
     }
 }
