@@ -2,6 +2,7 @@
 using MonsterTradingCardsGame.DataLayer.DTO;
 using MonsterTradingCardsGame.Models;
 using Npgsql;
+using Serilog;
 using System.Text.Json;
 
 namespace MonsterTradingCardsGame.Server.Controller
@@ -48,7 +49,7 @@ namespace MonsterTradingCardsGame.Server.Controller
         [EndPointAttribute("/users", "POST")]
         public static JsonResponseDTO Register(string registerString)
         {
-            RegisterDTO? registerDTO;
+            RegisterDTO registerDTO;
             User newUser;
             using (UnitOfWork unit = new UnitOfWork())
             {
@@ -62,12 +63,16 @@ namespace MonsterTradingCardsGame.Server.Controller
                     newUser = new User(registerDTO.Username, registerDTO.Password);
 
 
-                    unit.UserRepository().Add(newUser);       
+                    var user = unit.UserRepository().Add(newUser);
+                    Console.WriteLine(user.Password);
+                    Console.WriteLine();
+                    Log.Information($"Created User (username: {user.Username}) successfully");
                 }
                 catch (PostgresException e)
                 {
                     if(e.Code == Program.GetConfigMapper().PostgresDoubleEntry)
                     {
+                        Log.Error($"Double entry for {registerString}");
                         return new JsonResponseDTO("", System.Net.HttpStatusCode.Conflict);
                     }
                     Console.WriteLine(e.ErrorCode);
@@ -75,6 +80,7 @@ namespace MonsterTradingCardsGame.Server.Controller
                 catch (Exception)
                 {
                     unit.Rollback();
+                    Log.Error($"Exception encountered at UserController.Register");
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
                 }
             }
@@ -88,7 +94,7 @@ namespace MonsterTradingCardsGame.Server.Controller
         {
             User? user = SecurityHelper.GetUserFromToken(token);
             if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
-            return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.ProfileDescription, user.Picture, user.BattlePower)), System.Net.HttpStatusCode.OK);
+            return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.ProfileDescription, user.Picture, user.Elo)), System.Net.HttpStatusCode.OK);
         }
 
         [Authentification]
@@ -104,10 +110,15 @@ namespace MonsterTradingCardsGame.Server.Controller
                 userUpdate = JsonSerializer.Deserialize<UserUpdateDTO>(content);
                 if (userUpdate == null) throw new InvalidDataException();
 
-                if(userUpdate.NewPassword == null)
+                if(userUpdate.NewPassword != null)
+                {
+                    userUpdate.NewPassword = SecurityHelper.sha256_hash(userUpdate.NewPassword);
+                }
+                else
                 {
                     userUpdate.NewPassword = user.Password;
                 }
+                
                 if(userUpdate.NewPicture == null)
                 {
                     userUpdate.NewPicture = user.Picture;
@@ -115,9 +126,9 @@ namespace MonsterTradingCardsGame.Server.Controller
 
                 using (var uow = new UnitOfWork())
                 {
-                    user = uow.UserRepository().Update(new User(user.Username,user.ID, userUpdate.NewPassword,user.Coins, userUpdate.NewProfileDescription, userUpdate.NewPicture));
+                    user = uow.UserRepository().Update(new User(user.Username,user.ID, userUpdate.NewPassword,user.Coins, userUpdate.NewProfileDescription, userUpdate.NewPicture, user.Elo));
                 }
-                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.ProfileDescription, user.Picture, user.BattlePower)), System.Net.HttpStatusCode.OK);
+                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.ProfileDescription, user.Picture, user.Elo)), System.Net.HttpStatusCode.OK);
             }
             catch (Exception)
             {

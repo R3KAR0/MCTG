@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MonsterTradingCardsGame.DataLayer;
+using MonsterTradingCardsGame.DataLayer.DTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +10,33 @@ namespace MonsterTradingCardsGame.Server.Controller
 {
     public class BattleController : IController
     {
+        private static readonly Lazy<PackageController> packageController = new Lazy<PackageController>(() => new PackageController());
 
+        public static IController GetInstance { get { return packageController.Value; } }
+
+        [Authentification]
+        [EndPointAttribute("/battle", "POST")]
+        public static JsonResponseDTO GetUserStats(string token, string content)
+        {
+            var userId = SecurityHelper.GetUserIdFromToken(token);
+            if (userId == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+
+
+            using (UnitOfWork unit = new UnitOfWork())
+            {
+                try
+                {
+             
+                    //return new JsonResponseDTO(JsonSerializer.Serialize(new BattleResultsRepresentation(wins, loses, draws, elo)), System.Net.HttpStatusCode.OK);
+
+                }
+                catch (Exception)
+                {
+                    unit.Rollback();
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+        }
     }
 }

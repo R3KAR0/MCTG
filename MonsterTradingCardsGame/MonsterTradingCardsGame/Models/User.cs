@@ -16,19 +16,20 @@ namespace MonsterTradingCardsGame.Models
             Stack = new List<Card>();
             ProfileDescription = Program.GetConfigMapper().UserDescription;
             Picture = null;
-            BattlePower = 100;
+            Elo = 100;
         }
 
-        public User(string username, Guid iD, string password, int coins, string profileDescription)
+        public User(string username, Guid iD, string password, int coins, string profileDescription, int elo)
         {
             Username = username ?? throw new ArgumentNullException(nameof(username));
             ID = iD;
             Password = password ?? throw new ArgumentNullException(nameof(password));
             Coins = coins;
             ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
+            Elo = elo;
         }
 
-        public User(string username, Guid iD, string password, int coins, string profileDescription, byte[]? picture)
+        public User(string username, Guid iD, string password, int coins, string profileDescription, byte[]? picture, int elo)
         {
             Username = username ?? throw new ArgumentNullException(nameof(username));
             ID = iD;
@@ -36,6 +37,7 @@ namespace MonsterTradingCardsGame.Models
             Coins = coins;
             ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
             Picture = picture;
+            Elo = elo;
         }
 
         [JsonPropertyName("username")]
@@ -63,7 +65,7 @@ namespace MonsterTradingCardsGame.Models
         public byte[]? Picture { get; private set; }
 
         [JsonPropertyName("elo")]
-        public int BattlePower { get; private set; }    
+        public int Elo { get; private set; }    
 
         public bool SetCoins(int amount)
         {

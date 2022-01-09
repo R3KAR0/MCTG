@@ -83,6 +83,8 @@ namespace MonsterTradingCardsGame.Server
             }
         }
 
+
+        //}\n BUG
         private static HTTPMessage ReadHTTPMessage(TcpClient client)
         {
             string data = "";

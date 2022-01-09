@@ -1,5 +1,6 @@
 ﻿using MonsterTradingCardsGame.DataLayer.Repositories;
 using Npgsql;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,13 +16,18 @@ namespace MonsterTradingCardsGame.DataLayer
         private bool disposedValue;
         private NpgsqlTransaction? sqlTran;
 
+        #region Repository Declarations
         private UserRepository? userRepository = null;
         private TokenRepository? tokenRepository = null;
         private PackageRepository? packageRepository = null;
         private CardRepository? cardRepository = null;
         private DeckRepository? deckRepository = null;
         private DeckCardRepository? deckCardRepository = null;
+        private StatisticRepository? statisticRepository = null;
 
+        #endregion
+
+        #region RepositoryGetters
         public UserRepository UserRepository()
         {
             if(userRepository == null)
@@ -76,6 +82,17 @@ namespace MonsterTradingCardsGame.DataLayer
             return deckCardRepository;
         }
 
+        public StatisticRepository StatisticRepository()
+        {
+            if (statisticRepository == null)
+            {
+                statisticRepository = new StatisticRepository(npgsqlConnection);
+            }
+            return statisticRepository;
+        }
+
+        #endregion 
+
         public UnitOfWork()
         {
             npgsqlConnection = new NpgsqlConnection(connString);
@@ -109,16 +126,19 @@ namespace MonsterTradingCardsGame.DataLayer
 
         public void CreateTransaction()
         {
+            Log.Information("Transaction started");
             sqlTran = npgsqlConnection.BeginTransaction();
         }
 
         public void Commit()
         {
+            Log.Information("Commited changes");
             sqlTran?.Commit();
         }
 
         public void Rollback()
         {
+            Log.Information("Rollback started");
             sqlTran?.Rollback();
             sqlTran = null;
         }

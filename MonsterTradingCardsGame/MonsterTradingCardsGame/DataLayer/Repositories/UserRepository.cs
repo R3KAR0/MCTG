@@ -20,14 +20,15 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         }
         public User? Add(User obj)
         {
-            using var cmd = new NpgsqlCommand("INSERT INTO users (u_id, username, u_password, coins, u_description, picture) VALUES ((@u_id), (@username), (@u_password), (@coins), (@u_description), (@picture))", npgsqlConnection);
+            using var cmd = new NpgsqlCommand("INSERT INTO users (u_id, username, u_password, coins, u_description, picture, elo) VALUES ((@u_id), (@username), (@u_password), (@coins), (@u_description), (@picture), (@elo))", npgsqlConnection);
 
             cmd.Parameters.AddWithValue("u_id", obj.ID.ToString());
             cmd.Parameters.AddWithValue("username", obj.Username);
             cmd.Parameters.AddWithValue("u_password", obj.Password);
             cmd.Parameters.AddWithValue("coins", obj.Coins);
             cmd.Parameters.AddWithValue("u_description", obj.ProfileDescription);
-            if(obj.Picture == null)
+            cmd.Parameters.AddWithValue("elo", obj.Elo);
+            if (obj.Picture == null)
             {
                 cmd.Parameters.AddWithValue("picture", DBNull.Value);
             }
@@ -89,8 +90,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             {
                 while(reader.Read())
                 {
-                    reader.Read();
-                    users.Add(new User(reader.GetString(reader.GetOrdinal("username")), new Guid(reader.GetString(reader.GetOrdinal("u_id"))), reader.GetString(reader.GetOrdinal("u_password")), reader.GetInt32(reader.GetOrdinal("coins")), reader.GetString(reader.GetOrdinal("u_description"))));
+                    users.Add(new User(reader.GetString(reader.GetOrdinal("username")), new Guid(reader.GetString(reader.GetOrdinal("u_id"))), reader.GetString(reader.GetOrdinal("u_password")), reader.GetInt32(reader.GetOrdinal("coins")), reader.GetString(reader.GetOrdinal("u_description")), reader.GetInt32(reader.GetOrdinal("elo"))));
                 }
                 return users;
             }
@@ -107,7 +107,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 if (reader.HasRows)
                 {
                     reader.Read();
-                    return new User(reader.GetString(reader.GetOrdinal("username")), new Guid(reader.GetString(reader.GetOrdinal("u_id"))), reader.GetString(reader.GetOrdinal("u_password")), reader.GetInt32(reader.GetOrdinal("coins")), reader.GetString(reader.GetOrdinal("u_description")));
+                    return new User(reader.GetString(reader.GetOrdinal("username")), new Guid(reader.GetString(reader.GetOrdinal("u_id"))), reader.GetString(reader.GetOrdinal("u_password")), reader.GetInt32(reader.GetOrdinal("coins")), reader.GetString(reader.GetOrdinal("u_description")), reader.GetInt32(reader.GetOrdinal("elo")));
                 }
             }
             return null;
@@ -124,7 +124,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 if(reader.HasRows)
                 {
                     reader.Read();
-                    User user = new User(reader.GetString(reader.GetOrdinal("username")), new Guid(reader.GetString(reader.GetOrdinal("u_id"))), reader.GetString(reader.GetOrdinal("u_password")), reader.GetInt32(reader.GetOrdinal("coins")), reader.GetString(reader.GetOrdinal("u_description")));
+                    User user = new User(reader.GetString(reader.GetOrdinal("username")), new Guid(reader.GetString(reader.GetOrdinal("u_id"))), reader.GetString(reader.GetOrdinal("u_password")), reader.GetInt32(reader.GetOrdinal("coins")), reader.GetString(reader.GetOrdinal("u_description")), reader.GetInt32(reader.GetOrdinal("elo")));
                     return user;
                 }
 
@@ -180,6 +180,25 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 {
                     return false;
                 }
+            }
+        }
+
+        public User? UpdateElo(User obj, int change)
+        {
+            using var cmd = new NpgsqlCommand("UPDATE users SET elo=@elo WHERE u_id=@u_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("u_id", obj.ID.ToString());
+            cmd.Parameters.AddWithValue("elo", obj.Elo+change);
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+            if (res != 0)
+            {
+                return obj;
+            }
+            else
+            {
+                return null;
             }
         }
     }

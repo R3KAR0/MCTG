@@ -7,7 +7,8 @@ CREATE TABLE users (
     u_password  varchar(64) NOT NULL,
     coins   	integer NOT NULL,
 	u_description varchar(2048),
-	picture 	bytea 
+	picture 	bytea,
+	elo			integer NOT NULL
 );
 
 CREATE TYPE e_kind AS ENUM ('spell', 'goblin', 'dragon', 'orc', 'knight', 'kraken', 'elves');
@@ -53,8 +54,7 @@ CREATE TABLE battleResults (
 	CONSTRAINT user2_br FOREIGN KEY(user2) REFERENCES users(u_id),
 	winner		char(36),
 	CONSTRAINT winner_br FOREIGN KEY(winner) REFERENCES users(u_id),
-	battletime 	timestamp NOT NULL,
-	price		char(36) NOT NULL
+	battletime 	timestamp NOT NULL
 );
 
 CREATE TABLE auth_token(

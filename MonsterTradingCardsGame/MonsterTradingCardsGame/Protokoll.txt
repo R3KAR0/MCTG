@@ -1,7 +1,8 @@
-**************************************
+*****************************************
 		Protokoll MCTG
 	Christian Lauer (if21b064)
-**************************************
+GIT-Link: https://github.com/R3KAR0/MCTG
+*****************************************
 
 Adaptionen der Angabe und Begründung:
 1) Authentifizierung wurde mit echten AES-verschlüsselten Token umgesetzt, da Klartext Token ohne verschlüsselter Signatur keine Sicherheit bieten würden
