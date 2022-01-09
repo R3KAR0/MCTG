@@ -51,10 +51,10 @@ CREATE TABLE battleResults (
 	CONSTRAINT user1_br FOREIGN KEY(user1) REFERENCES users(u_id),
 	user2		char(36) NOT NULL,
 	CONSTRAINT user2_br FOREIGN KEY(user2) REFERENCES users(u_id),
-	winner		char(36) NOT NULL,
+	winner		char(36),
 	CONSTRAINT winner_br FOREIGN KEY(winner) REFERENCES users(u_id),
 	battletime 	timestamp NOT NULL,
-	price		int NOT NULL
+	price		char(36) NOT NULL
 );
 
 CREATE TABLE auth_token(

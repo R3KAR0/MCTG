@@ -16,7 +16,7 @@ namespace MonsterTradingCardsGame.Models
             Stack = new List<Card>();
             ProfileDescription = Program.GetConfigMapper().UserDescription;
             Picture = null;
-            BattlePower = 0;
+            BattlePower = 100;
         }
 
         public User(string username, Guid iD, string password, int coins, string profileDescription)
