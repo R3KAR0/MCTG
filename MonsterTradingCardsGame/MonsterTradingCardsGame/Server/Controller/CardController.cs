@@ -27,14 +27,8 @@ namespace MonsterTradingCardsGame.Server.Controller
             {
                 try
                 {
-                    var ids = unit.UserCardStackRepository().GetByUserId(userID.Value);
-                    List<Card> cardsOfUser = new();
-                    foreach (var id in ids)
-                    {
-                        cardsOfUser.Add(unit.CardRepository().GetById(id.CardId));
-                    }
-
-                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserCardsDTO(cardsOfUser)), System.Net.HttpStatusCode.OK);
+                    var cards = unit.CardRepository().GetByUserId(userID.Value);
+                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserCardsDTO(cards)), System.Net.HttpStatusCode.OK);
 
                 }
                 catch (Exception)

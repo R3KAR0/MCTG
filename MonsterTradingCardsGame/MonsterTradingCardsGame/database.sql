@@ -59,7 +59,7 @@ CREATE TABLE battleResults (
 
 CREATE TABLE auth_token(
 	u_id char(36) NOT NULL PRIMARY KEY,
-	CONSTRAINT fk_users_stack FOREIGN KEY(u_id) REFERENCES users(u_id),
+	CONSTRAINT fk_user_token FOREIGN KEY(u_id) REFERENCES users(u_id),
 	valid_until timestamp NOT NULL
 );
 
@@ -68,5 +68,5 @@ CREATE TABLE card_deck(
 	CONSTRAINT fk_stack FOREIGN KEY(d_id) REFERENCES deck(d_id),
 	c_id char(36) NOT NULL,
 	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
-	PRIMARY KEY(s_id, c_id)
+	PRIMARY KEY(d_id, c_id)
 );

@@ -25,13 +25,14 @@ namespace MonsterTradingCardsGame.Models
         [JsonPropertyName("timestamp")]
         public DateTime CreationDate { get;private set;}
 
-        public Package()
+        public Package(Guid buyerId)
         {
-            Price = Program.GetPackageCreationMapper().PackagePrize;
-            Cards = CreateCards();
-            CreationDate = DateTime.Now;
             ID = Guid.NewGuid();
+            BuyerID = buyerId;
+            Price = Program.GetPackageCreationMapper().PackagePrize;
+            CreationDate = DateTime.Now;
             Description = Program.GetPackageCreationMapper().PackageDescription;
+            Cards = CreateCards();
         }
 
         private List<Card> CreateCards()
@@ -54,15 +55,9 @@ namespace MonsterTradingCardsGame.Models
                     type = EType.SPELL;
                 }
                 
-                cards.Add(new Card(Guid.NewGuid(), Program.GetPackageCreationMapper().PackageDescription, type, selectedKind, selectedElement, rand.Next(10,50)));
+                cards.Add(new Card(Guid.NewGuid(), BuyerID, ID, Program.GetPackageCreationMapper().PackageDescription, type, selectedKind, selectedElement, rand.Next(10,50)));
             } 
             return cards;
         }
-
-        public void SetBuyerId(Guid buyerId)
-        {
-            BuyerID = buyerId;
-        }
-
     }
 }

@@ -17,9 +17,11 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         }
         public Card? Add(Card obj)
         {
-            using var cmd = new NpgsqlCommand("INSERT INTO cards (c_id, c_description, c_kind, c_type, c_element, creationtime, damage) VALUES ((@c_id), (@c_description), (@c_kind), (@c_type), (@c_element), (@creationtime), (@damage))", npgsqlConnection);
+            using var cmd = new NpgsqlCommand("INSERT INTO cards (c_id, u_id, p_id, c_description, c_kind, c_type, c_element, creationtime, damage) VALUES ((@c_id), (@u_id),(@p_id), (@c_description), (@c_kind), (@c_type), (@c_element), (@creationtime), (@damage))", npgsqlConnection);
 
             cmd.Parameters.AddWithValue("c_id", obj.Id.ToString());
+            cmd.Parameters.AddWithValue("u_id", obj.UserId.ToString());
+            cmd.Parameters.AddWithValue("p_id", obj.PackageId.ToString());
             cmd.Parameters.AddWithValue("c_description", obj.Description);
             cmd.Parameters.AddWithValue("c_kind", obj.Kind);
             cmd.Parameters.AddWithValue("c_type", obj.CardType);
@@ -60,6 +62,8 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 {
                     cardsOfUser.Add(new Card(
                         new Guid(reader.GetString(reader.GetOrdinal("c_id"))),
+                        new Guid(reader.GetString(reader.GetOrdinal("u_id"))),
+                        new Guid(reader.GetString(reader.GetOrdinal("p_id"))),
                         reader.GetString(reader.GetOrdinal("c_description")),
                         reader.GetFieldValue<EType>(reader.GetOrdinal("c_type")),
                         reader.GetFieldValue<EKind>(reader.GetOrdinal("c_kind")),
@@ -83,6 +87,8 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                     reader.Read();
                     return new Card(
                         new Guid(reader.GetString(reader.GetOrdinal("c_id"))),
+                        new Guid(reader.GetString(reader.GetOrdinal("u_id"))),
+                        new Guid(reader.GetString(reader.GetOrdinal("p_id"))),
                         reader.GetString(reader.GetOrdinal("c_description")),
                         reader.GetFieldValue<EType>(reader.GetOrdinal("c_type")),
                         reader.GetFieldValue<EKind>(reader.GetOrdinal("c_kind")),

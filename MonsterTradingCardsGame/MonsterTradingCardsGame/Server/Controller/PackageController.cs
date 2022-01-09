@@ -19,25 +19,24 @@ namespace MonsterTradingCardsGame.Server.Controller
         [EndPointAttribute("/packages/buy", "POST")]
         public static JsonResponseDTO BuyPackage(string auth,string buyContent)
         {
-            var package = new Package();
-            User? user = SecurityHelper.GetUserFromToken(auth); 
-            if(user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+            
+            User? user = SecurityHelper.GetUserFromToken(auth);
+            if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
 
-            if(user.Coins - package.Price < 0) return new JsonResponseDTO("", System.Net.HttpStatusCode.PaymentRequired);
-
+            var package = new Package(user.ID);
+            if (user.Coins - package.Price < 0) return new JsonResponseDTO("", System.Net.HttpStatusCode.PaymentRequired);
 
             using (var uow = new UnitOfWork())
             {
                 try
                 {
+                    
                     user.SetCoins(package.Price * -1);
                     uow.UserRepository().Update(user);
-                    package.SetBuyerId(user.ID);
                     uow.PackageRepository().Add(package);
                     foreach (var card in package.Cards)
                     {
                         uow.CardRepository().Add(card);
-                        uow.UserCardStackRepository().Add(new UserCardsStack(user.ID, card.Id));
                     }
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.OK);
                 }
