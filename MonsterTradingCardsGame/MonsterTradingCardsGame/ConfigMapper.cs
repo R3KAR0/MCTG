@@ -9,7 +9,7 @@ namespace MonsterTradingCardsGame
 {
     public class ConfigMapper
     {
-        public ConfigMapper(string connectionString, string dBUser, string dBPassword, string userDescription, string postgresDoubleEntry, string secret)
+        public ConfigMapper(string connectionString, string dBUser, string dBPassword, string userDescription, string postgresDoubleEntry, string secret, int deckSize)
         {
             ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
             DBUser = dBUser ?? throw new ArgumentNullException(nameof(dBUser));
@@ -17,6 +17,7 @@ namespace MonsterTradingCardsGame
             UserDescription = userDescription ?? throw new ArgumentNullException(nameof(userDescription));
             PostgresDoubleEntry = postgresDoubleEntry ?? throw new ArgumentNullException(nameof(postgresDoubleEntry));
             Secret = secret ?? throw new ArgumentNullException(nameof(secret));
+            DeckSize = deckSize;
         }
 
         [JsonPropertyName("connectionString")]
@@ -34,6 +35,9 @@ namespace MonsterTradingCardsGame
 
         [JsonPropertyName("secret")]
         public string Secret { get; private set; }
+
+        [JsonPropertyName("deckSize")]
+        public int DeckSize { get; private set; }
 
     }
 }
