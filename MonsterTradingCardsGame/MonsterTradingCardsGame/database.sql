@@ -37,9 +37,9 @@ CREATE TABLE cards (
 	CONSTRAINT fk_card_package FOREIGN KEY(p_id) REFERENCES packages(p_id) 
 );
 
-CREATE TABLE deck (
+CREATE TABLE decks (
 	d_id 			char(36) PRIMARY KEY,
-	s_description 	char(2048) NOT NULL,
+	d_description 	char(2048) NOT NULL,
 	creationtime 	timestamp NOT NULL,
 	u_id			char(36) NOT NULL,
 	CONSTRAINT fk_stack_user FOREIGN KEY(u_id) REFERENCES users(u_id) 
