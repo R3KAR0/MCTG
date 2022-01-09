@@ -1,0 +1,218 @@
+**************************************
+		Protokoll MCTG
+	Christian Lauer (if21b064)
+**************************************
+
+
+
+
+DATABASE
+
+Herangehensweise:
+1.) PostgreSQL lokal installieren oder als DockerContainer aufsetzen 
+2.)
+
+Entscheidungen:
+PostgreSQL wurde der Einfachheit halber lokal aufgesetzt. Eine Integration über Docker wäre aber mittels des folgenden Dockerfiles möglich:
+beziehungsweise über die Console mit: 
+sudo docker run -d --name=postgres13 -p 5432:5432 -v postgres-volume:/var/lib/postgresql/data -e POSTGRES_PASSWORD=[your_password] postgres
+
+**************************************
+		POSTGRE DOCKERFILE START
+**************************************
+FROM ubuntu:16.04
+RUN apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+RUN apt-get update && apt-get install -y python-software-properties software-properties-common postgresql-9.3 postgresql-client-9.3 postgresql-contrib-9.3
+
+USER postgres
+RUN    /etc/init.d/postgresql start &&\
+    psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
+    createdb -O docker docker
+
+RUN echo "host all  all    0.0.0.0/0  md5" >> /etc/postgresql/9.3/main/pg_hba.conf
+
+RUN echo "listen_addresses='*'" >> /etc/postgresql/9.3/main/postgresql.conf
+
+EXPOSE 5432
+
+VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+
+CMD ["/usr/lib/postgresql/9.3/bin/postgres", "-D", "/var/lib/postgresql/9.3/main", "-c", "config_file=/etc/postgresql/9.3/main/postgresql.conf"]
+**************************************
+		POSTGRE DOCKERFILE END
+**************************************
+
+
+Erster SQL Entwurf:
+**************************************
+		OLD SQL START
+**************************************
+COMMENT ON DATABASE "MCTG"
+    IS 'MonsterCardTradingGame';
+	
+CREATE TABLE users (
+    u_id        char(36) PRIMARY KEY,
+    username    varchar(40) NOT NULL UNIQUE,
+    u_password  varchar(64) NOT NULL,
+    coins   	integer NOT NULL,
+	u_description varchar(2048),
+	picture 	bytea 
+);
+
+CREATE TYPE e_kind AS ENUM ('spell', 'goblin', 'dragon', 'orc', 'knight', 'kraken', 'elves');
+CREATE TYPE e_type AS ENUM ('spell', 'monster');
+CREATE TYPE e_element AS ENUM ('fire', 'water', 'neutral');
+
+CREATE TABLE cards (
+    c_id        char(36) PRIMARY KEY,
+    c_description varchar(2048) NOT NULL,
+	c_kind		e_kind NOT NULL,
+	c_type		e_type NOT NULL,
+	c_element	e_element NOT NULL,
+	creationtime timestamp NOT NULL,
+	damage integer NOT NULL,
+	u_id	char(36) NOT NULL,
+);
+
+CREATE TABLE packages (
+    p_id        	char(36) PRIMARY KEY,
+    p_description 	varchar(2048) NOT NULL,
+	creationtime 	timestamp NOT NULL,
+	price			int NOT NULL,
+	buyer			char(36) NOT NULL,
+	CONSTRAINT fk_packages_user FOREIGN KEY(buyer) REFERENCES users(u_id)
+);
+
+CREATE TABLE battleResults (
+    br_id       char(36) PRIMARY KEY,
+    user1		char(36) NOT NULL,
+	CONSTRAINT user1_br FOREIGN KEY(user1) REFERENCES users(u_id),
+	user2		char(36) NOT NULL,
+	CONSTRAINT user2_br FOREIGN KEY(user2) REFERENCES users(u_id),
+	winner		char(36) NOT NULL,
+	CONSTRAINT winner_br FOREIGN KEY(winner) REFERENCES users(u_id),
+	battletime 	timestamp NOT NULL,
+	price		int NOT NULL
+);
+
+CREATE TABLE packages_cards(
+	p_id char(36) NOT NULL,
+	CONSTRAINT fk_packages FOREIGN KEY(p_id) REFERENCES packages(p_id),
+	c_id char(36) NOT NULL,
+	CONSTRAINT fk_cards FOREIGN KEY(c_id) REFERENCES cards(c_id)
+);
+
+CREATE TABLE users_cards_deck(
+	u_id char(36) NOT NULL,
+	CONSTRAINT fk_users_deck FOREIGN KEY(u_id) REFERENCES users(u_id),
+	c_id char(36) NOT NULL,
+	CONSTRAINT fk_cards_deck FOREIGN KEY(c_id) REFERENCES cards(c_id)
+);
+
+CREATE TABLE users_cards_stack(
+	u_id char(36) NOT NULL,
+	CONSTRAINT fk_users_stack FOREIGN KEY(u_id) REFERENCES users(u_id),
+	c_id char(36) NOT NULL,
+	CONSTRAINT fk_cards_stack FOREIGN KEY(c_id) REFERENCES cards(c_id)
+);
+
+CREATE TABLE auth_token(
+	u_id char(36) NOT NULL PRIMARY KEY,
+	CONSTRAINT fk_users_stack FOREIGN KEY(u_id) REFERENCES users(u_id),
+	valid_until timestamp NOT NULL
+);
+**************************************
+		Old SQL End
+**************************************
+
+Vereinfacht zu, da es sich bei den Relationen Stack <-> User und Deck <-> User nicht um Many-To-Many Relationen handelt.
+Cards wurden um die u_id des Besitzers erweitert und Deck als eigener Table angelegt (ein User kann somit mehrere Decks vorbereiten).
+Auf Stored Procedures und Custom Constraints wurde verzichtet.
+ 
+**************************************
+		New SQL START
+**************************************
+COMMENT ON DATABASE "MCTG"
+    IS 'MonsterCardTradingGame';
+	
+CREATE TABLE users (
+    u_id        char(36) PRIMARY KEY,
+    username    varchar(40) NOT NULL UNIQUE,
+    u_password  varchar(64) NOT NULL,
+    coins   	integer NOT NULL,
+	u_description varchar(2048),
+	picture 	bytea 
+);
+
+CREATE TYPE e_kind AS ENUM ('spell', 'goblin', 'dragon', 'orc', 'knight', 'kraken', 'elves');
+CREATE TYPE e_type AS ENUM ('spell', 'monster');
+CREATE TYPE e_element AS ENUM ('fire', 'water', 'neutral');
+
+CREATE TABLE packages (
+    p_id        	char(36) PRIMARY KEY,
+    p_description 	varchar(2048) NOT NULL,
+	creationtime 	timestamp NOT NULL,
+	price			int NOT NULL,
+	buyer			char(36) NOT NULL,
+	CONSTRAINT fk_packages_user FOREIGN KEY(buyer) REFERENCES users(u_id)
+);
+
+CREATE TABLE cards (
+    c_id        char(36) PRIMARY KEY,
+    c_description varchar(2048) NOT NULL,
+	c_kind		e_kind NOT NULL,
+	c_type		e_type NOT NULL,
+	c_element	e_element NOT NULL,
+	creationtime timestamp NOT NULL,
+	damage integer NOT NULL,
+	u_id	char(36) NOT NULL,
+	p_id 	char(36) NOT NULL,
+	CONSTRAINT fk_card_user FOREIGN KEY(u_id) REFERENCES users(u_id),
+	CONSTRAINT fk_card_package FOREIGN KEY(p_id) REFERENCES packages(p_id) 
+);
+
+CREATE TABLE deck (
+	d_id 			char(36) PRIMARY KEY,
+	s_description 	char(2048) NOT NULL,
+	creationtime 	timestamp NOT NULL,
+	u_id			char(36) NOT NULL,
+	CONSTRAINT fk_stack_user FOREIGN KEY(u_id) REFERENCES users(u_id) 
+);
+
+CREATE TABLE battleResults (
+    br_id       char(36) PRIMARY KEY,
+    user1		char(36) NOT NULL,
+	CONSTRAINT user1_br FOREIGN KEY(user1) REFERENCES users(u_id),
+	user2		char(36) NOT NULL,
+	CONSTRAINT user2_br FOREIGN KEY(user2) REFERENCES users(u_id),
+	winner		char(36) NOT NULL,
+	CONSTRAINT winner_br FOREIGN KEY(winner) REFERENCES users(u_id),
+	battletime 	timestamp NOT NULL,
+	price		int NOT NULL
+);
+
+CREATE TABLE auth_token(
+	u_id char(36) NOT NULL PRIMARY KEY,
+	CONSTRAINT fk_users_stack FOREIGN KEY(u_id) REFERENCES users(u_id),
+	valid_until timestamp NOT NULL
+);
+
+CREATE TABLE card_deck(
+	d_id char(36) NOT NULL,
+	CONSTRAINT fk_stack FOREIGN KEY(d_id) REFERENCES deck(d_id),
+	c_id char(36) NOT NULL,
+	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	PRIMARY KEY(s_id, c_id)
+);
+**************************************
+		New SQL END
+**************************************
+
+
+
+
+Authentification
+Für die Authentifizierung wurde eine eigene Token-Lösung mittels eines symmetrischen Verschlüsselungsverfahrens (AES) implementiert.
+Hierbei wird ein Token erzeugt, der im Klartext als [username].[validUntil] aufgelöst wird. 
+Die Zeichenkette die für die Verschlüsselung verwendet wird, wird aus der config.json geladen und sollte nur dem Server bekannt sein.
