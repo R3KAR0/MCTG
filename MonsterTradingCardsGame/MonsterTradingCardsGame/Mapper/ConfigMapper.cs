@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace MonsterTradingCardsGame
+namespace MonsterTradingCardsGame.Mapper
 {
     public class ConfigMapper
     {

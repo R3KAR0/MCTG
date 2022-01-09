@@ -39,7 +39,9 @@ namespace MonsterTradingCardsGame.Models
         [EnumMember(Value = "WATER")]
         WATER,
         [EnumMember(Value = "NEUTRAL")]
-        NEUTRAL 
+        NEUTRAL,
+        [EnumMember(Value = "ALL")]
+        ALL
     }
 
     public class Card : IJsonConvertable

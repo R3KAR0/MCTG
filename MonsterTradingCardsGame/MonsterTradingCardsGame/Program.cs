@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using MonsterTradingCardsGame.Mapper;
 using MonsterTradingCardsGame.Server.Controller;
 using Npgsql;
 using Serilog;
@@ -17,6 +18,7 @@ namespace MonsterTradingCardsGame
         private static ContainerBuilder containerBuilder = new();
         private static ConfigMapper? configMapper;
         private static PackageCreationMapper? packageCreationMapper;
+        private static RulesMapper? rulesMapper;
 
         public static ConfigMapper? GetConfigMapper()
         {
@@ -25,6 +27,15 @@ namespace MonsterTradingCardsGame
                 Setup();
             }
             return configMapper;          
+        }
+
+        public static RulesMapper? GetRulesMapper()
+        {
+            if (rulesMapper == null)
+            {
+                Setup();
+            }
+            return rulesMapper;
         }
 
         public static PackageCreationMapper? GetPackageCreationMapper()
@@ -59,7 +70,6 @@ namespace MonsterTradingCardsGame
 
         private static void Setup()
         {
-            // Container INJECTION
             using (var sr = new StreamReader("..\\..\\..\\config.json"))
             {
                 try
@@ -81,6 +91,19 @@ namespace MonsterTradingCardsGame
                 }
                 catch (Exception)
                 {
+                    throw;
+                }
+            }
+
+            using (var sr = new StreamReader("..\\..\\..\\rules.json"))
+            {
+                try
+                {
+                    rulesMapper = JsonSerializer.Deserialize<RulesMapper>(sr.ReadToEnd());
+                }
+                catch (Exception)
+                {
+
                     throw;
                 }
             }
