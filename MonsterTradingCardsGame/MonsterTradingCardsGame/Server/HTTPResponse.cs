@@ -25,8 +25,6 @@ namespace MonsterTradingCardsGame.Server
             StatusCode = (int)statusCode;
             date = DateTime.UtcNow;
             Content = content;
-            //Headers.Add("Date", DateTime.UtcNow);
-            //Headers.Add("Server", "apache 1.2");
             if (content != null && content.Length > 0)
             {
                 Headers.Add("Content-Length", content.Length);

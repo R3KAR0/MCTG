@@ -21,10 +21,7 @@ namespace MTCGTesting
         [SetUp]
         public void Setup()
         {
-            using (var sr = new StreamReader("..\\..\\..\\config.json"))
-            {
-               mapper = JsonSerializer.Deserialize<ConfigMapper>(sr.ReadToEnd());
-            }
+            mapper = Program.GetConfigMapper();
             token = $"{username}.{dateTime}";
         }
 
@@ -34,9 +31,9 @@ namespace MTCGTesting
             try
             {
                 var encrypted = SecurityHelper.EncryptString(token);
-                if (encrypted.Length > 0 && encrypted.Contains(username) == false && encrypted.Contains(dateTime.ToString()) == false)
+                if (encrypted.Contains(username) == false && encrypted.Contains(dateTime.ToString()) == false)
                 {
-                    Assert.Pass();
+                    Assert.Greater(encrypted.Length, 0);
                 }
             }
             catch (Exception)
@@ -53,15 +50,22 @@ namespace MTCGTesting
                 var encrypted = SecurityHelper.EncryptString(token);
                 var decrypted = SecurityHelper.DecryptString(encrypted);
 
-                if(decrypted == token)
-                {
-                    Assert.Pass();
-                }
+                Assert.AreEqual(token, decrypted);
             }
             catch (Exception)
             {
                 Assert.Fail();
             }
+        }
+
+
+        [Test]
+        public void Test_sha256Length()
+        {
+            var hash1 = SecurityHelper.sha256_hash(token);
+            var hash2 = SecurityHelper.sha256_hash(username);
+            Assert.AreEqual(hash1.Length, 64);
+            Assert.AreEqual(hash2.Length, 64);
         }
     }
 }
