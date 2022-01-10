@@ -29,7 +29,11 @@ namespace MTCGTesting
 
             
             string strText = System.IO.File.ReadAllText("..\\..\\..\\..\\test.sql", Encoding.UTF8);
-            string connString = Program.GetConfigMapper().ConnectionString;
+
+            var mapper = Program.GetConfigMapper();
+            if (mapper == null) throw new NullReferenceException();
+
+            string connString = mapper.ConnectionString;
             testDB = new(connString);
             testDB.Open();
             NpgsqlCommand cmd = new(strText, testDB);

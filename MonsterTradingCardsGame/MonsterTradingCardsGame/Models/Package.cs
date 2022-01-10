@@ -27,11 +27,14 @@ namespace MonsterTradingCardsGame.Models
 
         public Package(Guid buyerId)
         {
+            var mapper = Program.GetPackageCreationMapper();
+            if (mapper == null) throw new NullReferenceException();
+
             Id = Guid.NewGuid();
             BuyerID = buyerId;
-            Price = Program.GetPackageCreationMapper().PackagePrize;
+            Price = mapper.PackagePrize;
             TimeStamp = DateTime.Now;
-            Description = Program.GetPackageCreationMapper().PackageDescription;
+            Description = mapper.PackageDescription;
             Cards = CreateCards();
         }
 
@@ -62,20 +65,24 @@ namespace MonsterTradingCardsGame.Models
             Random element = new Random();
 
             Random rand = new Random();
-            for (int i = 0; i < Program.GetPackageCreationMapper().PackageSize; i++)
+            var mapper = Program.GetPackageCreationMapper();
+            if (mapper == null) throw new NullReferenceException();
+
+
+            for (int i = 0; i < mapper.PackageSize; i++)
             {
                 int kindValue = kind.Next(0, 100);
                 int elementValue = element.Next(0, 100);
 
-                EKind selectedKind = Program.GetPackageCreationMapper().KindChances.OrderBy(pair => pair.Value).First(x => x.Value >= kindValue).Key;
-                EElement selectedElement = Program.GetPackageCreationMapper().ElementChances.OrderBy(pair => pair.Value).First(x => x.Value >= elementValue).Key;
+                EKind selectedKind = mapper.KindChances.OrderBy(pair => pair.Value).First(x => x.Value >= kindValue).Key;
+                EElement selectedElement = mapper.ElementChances.OrderBy(pair => pair.Value).First(x => x.Value >= elementValue).Key;
                 EType type = EType.MONSTER;
                 if (selectedKind == EKind.SPELL)
                 {
                     type = EType.SPELL;
                 }
-                
-                cards.Add(new Card(Guid.NewGuid(), BuyerID, Id, Program.GetPackageCreationMapper().PackageDescription, type, selectedKind, selectedElement, rand.Next(10,50)));
+
+                cards.Add(new Card(Guid.NewGuid(), BuyerID, Id, mapper.PackageDescription, type, selectedKind, selectedElement, rand.Next(10,50)));
             } 
             return cards;
         }

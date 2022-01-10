@@ -83,7 +83,7 @@ namespace MonsterTradingCardsGame.Server.Controller
         [EndPointAttribute("/decks", "PUT")]
         public static JsonResponseDTO ConfigureUserDeck(string token, string content)
         {
-            CardIdListDeckDTO cardIdsDTO;
+            CardIdListDeckDTO? cardIdsDTO;
             Guid? userID = SecurityHelper.GetUserIdFromToken(token);
             if (userID == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
 
@@ -108,6 +108,7 @@ namespace MonsterTradingCardsGame.Server.Controller
                     foreach (var cardId in cardIdsDTO.CardIds)
                     {
                         var card = unit.CardRepository().GetById(cardId);
+                        if(card == null) throw new InvalidDataException();
                         if(unit.TradeOfferRepository().GetById(cardId) != null)
                         {
                             throw new NotAuthorizedException();
@@ -126,7 +127,10 @@ namespace MonsterTradingCardsGame.Server.Controller
                 }
                 catch (PostgresException e)
                 {
-                    if (e.Code == Program.GetConfigMapper().PostgresDoubleEntry)
+                    var mapper = Program.GetConfigMapper();
+                    if (mapper == null) throw new NullReferenceException();
+
+                    if (e.Code == mapper.PostgresDoubleEntry)
                     {
                         Log.Error($"Double entry for Cards in Deck");
                         unit.Rollback();
@@ -147,7 +151,7 @@ namespace MonsterTradingCardsGame.Server.Controller
         [EndPointAttribute("/decks/select", "POST")]
         public static JsonResponseDTO SelectDeck(string token, string content)
         {
-            DeckSelectionDTO deckSelectionDTO;
+            DeckSelectionDTO? deckSelectionDTO;
             var user = SecurityHelper.GetUserFromToken(token);
             if(user == null) throw new NotAuthorizedException();
 

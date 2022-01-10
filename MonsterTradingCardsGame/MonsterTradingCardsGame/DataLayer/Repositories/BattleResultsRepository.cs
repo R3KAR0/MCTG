@@ -10,7 +10,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
     public class BattleResultsRepository : IRepository<BattleResult>
     {
-        NpgsqlConnection npgsqlConnection = null;
+        NpgsqlConnection npgsqlConnection;
         public BattleResultsRepository(NpgsqlConnection npgsqlConnection)
         {
             this.npgsqlConnection = npgsqlConnection;
@@ -31,6 +31,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             {
                 cmd.Parameters.AddWithValue("winner", obj.Winner);
             }
+
             cmd.Parameters.AddWithValue("battletime", new NpgsqlTypes.NpgsqlDateTime(obj.BattleTime));
 
             cmd.Prepare();

@@ -10,7 +10,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
     public class TradeOfferRepository : IRepository<TradeOffer>
     {
-        NpgsqlConnection npgsqlConnection = null;
+        NpgsqlConnection npgsqlConnection;
         public TradeOfferRepository(NpgsqlConnection npgsqlConnection)
         {
             this.npgsqlConnection = npgsqlConnection;

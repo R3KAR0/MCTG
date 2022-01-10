@@ -11,7 +11,7 @@ namespace MonsterTradingCardsGame.DataLayer
 {
     public class UnitOfWork : IDisposable, IUnitOfWork
     {
-        private readonly string connString = Program.GetConfigMapper().ConnectionString;
+        private readonly string connString;
         private readonly NpgsqlConnection npgsqlConnection;
         private bool disposedValue;
         private NpgsqlTransaction? sqlTran;
@@ -116,6 +116,11 @@ namespace MonsterTradingCardsGame.DataLayer
 
         public UnitOfWork()
         {
+            var mapper = Program.GetConfigMapper();
+            if (mapper == null) throw new NullReferenceException();
+
+            connString = mapper.ConnectionString;
+
             npgsqlConnection = new NpgsqlConnection(connString);
             npgsqlConnection.Open();
             CreateTransaction();

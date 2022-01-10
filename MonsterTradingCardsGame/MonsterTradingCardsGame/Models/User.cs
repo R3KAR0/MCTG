@@ -8,13 +8,16 @@ namespace MonsterTradingCardsGame.Models
     {
         public User(string username, string password)
         {
+            var mapper = Program.GetConfigMapper();
+            if (mapper == null) throw new NullReferenceException();
+
             Username = username ?? throw new ArgumentNullException(nameof(username));
             Id = Guid.NewGuid();
             Password = SecurityHelper.sha256_hash(password) ?? throw new ArgumentNullException(nameof(password));
             Coins = 20; // hardcoded? -> Config
-            Deck = new List<Card>();
-            Stack = new List<Card>();
-            Description = Program.GetConfigMapper().UserDescription;
+            Deck = new();
+            Stack = new();
+            Description = mapper.UserDescription;
             Elo = 100;
         }
 
@@ -26,6 +29,8 @@ namespace MonsterTradingCardsGame.Models
             Coins = coins;
             Description = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
             Elo = elo;
+            Deck = new();
+            Stack = new();
         }
 
         [JsonConstructor]

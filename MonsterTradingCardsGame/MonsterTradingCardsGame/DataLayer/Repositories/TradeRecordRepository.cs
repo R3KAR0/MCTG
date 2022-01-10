@@ -24,7 +24,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             throw new NotImplementedException();
         }
 
-        public List<TradeRecord?> GetAll()
+        public List<TradeRecord> GetAll()
         {
             throw new NotImplementedException();
         }

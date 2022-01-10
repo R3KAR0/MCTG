@@ -49,7 +49,7 @@ namespace MonsterTradingCardsGame.Server.Controller
         [EndPointAttribute("/users", "POST")]
         public static JsonResponseDTO Register(string registerString)
         {
-            RegisterDTO registerDTO;
+            RegisterDTO? registerDTO;
             User newUser;
             using (UnitOfWork unit = new UnitOfWork())
             {
@@ -64,13 +64,18 @@ namespace MonsterTradingCardsGame.Server.Controller
 
 
                     var user = unit.UserRepository().Add(newUser);
-                    Console.WriteLine(user.Password);
-                    Console.WriteLine();
+                   if(user == null)
+                    {
+                        throw new Exception();
+                    }
                     Log.Information($"Created User (username: {user.Username}) successfully");
                 }
                 catch (PostgresException e)
                 {
-                    if(e.Code == Program.GetConfigMapper().PostgresDoubleEntry)
+                    var mapper = Program.GetConfigMapper();
+                    if (mapper == null) throw new NullReferenceException();
+
+                    if (e.Code == mapper.PostgresDoubleEntry)
                     {
                         Log.Error($"Double entry for {registerString}");
                         return new JsonResponseDTO("", System.Net.HttpStatusCode.Conflict);
@@ -123,7 +128,8 @@ namespace MonsterTradingCardsGame.Server.Controller
                 {
                     user = uow.UserRepository().Update(new User(user.Username,user.Id, userUpdate.NewPassword,user.Coins, userUpdate.NewProfileDescription, user.Elo));
                 }
-                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.Description, user.Elo)), System.Net.HttpStatusCode.OK);
+                if(user == null) throw new InvalidDataException();
+                return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.Description, user.Elo)), System.Net.HttpStatusCode.OK);
             }
             catch (Exception)
             {

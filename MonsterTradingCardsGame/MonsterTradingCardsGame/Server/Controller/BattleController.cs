@@ -41,14 +41,19 @@ namespace MonsterTradingCardsGame.Server.Controller
                     {
                         foreach (var item in deckCards)
                         {
-                            userCards.Add(unit.CardRepository().GetById(item.CardId));
+                            var card = unit.CardRepository().GetById(item.CardId);
+                            if(card == null) throw new InvalidDataException();
+                            userCards.Add(card);
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         return new JsonResponseDTO("", System.Net.HttpStatusCode.PreconditionRequired);
                     }
-                    if(userCards.Count != Program.GetConfigMapper().DeckSize)
+
+                    var mapper = Program.GetConfigMapper();
+                    if (mapper == null) throw new NullReferenceException();
+                    if(userCards.Count != mapper.DeckSize)
                     {
                         return new JsonResponseDTO("", System.Net.HttpStatusCode.PreconditionRequired);
                     }

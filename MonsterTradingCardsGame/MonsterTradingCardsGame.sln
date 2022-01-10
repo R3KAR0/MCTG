@@ -5,7 +5,12 @@ VisualStudioVersion = 17.1.31903.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MonsterTradingCardsGame", "MonsterTradingCardsGame\MonsterTradingCardsGame.csproj", "{2D1CFFE9-8E09-4203-AA8A-555D5532367D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MTCGTesting", "MTCGTesting\MTCGTesting.csproj", "{BE549E8E-BE3D-4526-815C-D05336F2052E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MTCGTesting", "MTCGTesting\MTCGTesting.csproj", "{BE549E8E-BE3D-4526-815C-D05336F2052E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CBEEA48B-1731-41D0-9FA3-42D8CC51B107}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

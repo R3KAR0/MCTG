@@ -10,7 +10,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
     public class DeckRepository : IRepository<Deck>
     {
-        NpgsqlConnection npgsqlConnection = null;
+        NpgsqlConnection npgsqlConnection;
         public DeckRepository(NpgsqlConnection npgsqlConnection)
         {
             this.npgsqlConnection = npgsqlConnection;
@@ -69,7 +69,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             return false;
         }
 
-        public List<Deck?> GetAll()
+        public List<Deck> GetAll()
         {
             using var cmd = new NpgsqlCommand("SELECT * FROM decks", npgsqlConnection);
 

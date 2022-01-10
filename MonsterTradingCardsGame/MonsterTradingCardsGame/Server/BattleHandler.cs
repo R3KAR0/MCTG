@@ -52,7 +52,7 @@ namespace MonsterTradingCardsGame.Server
 
         public static BattleLog? Calculate()
         {
-            BattleLog result = null;
+            BattleLog? result = null;
             while(queue.Count < 2)
             {
                 Thread.Sleep(300);
@@ -74,6 +74,7 @@ namespace MonsterTradingCardsGame.Server
             var random = new Random();
             int round = 1;
             var mapper = Program.GetRulesMapper();
+            if (mapper == null) throw new NullReferenceException();
             while (user1Deck.Count != 0 && user2Deck.Count != 0 && round != 100)
             {
                 double user1multiplier = 1;
@@ -165,8 +166,16 @@ namespace MonsterTradingCardsGame.Server
                 using(var uow = new UnitOfWork())
                 {
                     uow.StatisticRepository().Add(new BattleResult(user1,user2, winner));
-                    uow.UserRepository().UpdateElo(uow.UserRepository().GetById(user2), 5);
-                    uow.UserRepository().UpdateElo(uow.UserRepository().GetById(user1), -3);
+
+                    var u2 = uow.UserRepository().GetById(user2);
+                    var u1 = uow.UserRepository().GetById(user1);
+                    if(u2 == null || u1 == null)
+                    {
+                        throw new InvalidDataException();
+                    }
+
+                    uow.UserRepository().UpdateElo(u2, 5);
+                    uow.UserRepository().UpdateElo(u1, -3);
                 }
             }
             else if (user2Deck.Count == 0)
@@ -174,9 +183,16 @@ namespace MonsterTradingCardsGame.Server
                 winner = user1;
                 using (var uow = new UnitOfWork())
                 {
+                    var u2 = uow.UserRepository().GetById(user2);
+                    var u1 = uow.UserRepository().GetById(user1);
+                    if (u2 == null || u1 == null)
+                    {
+                        throw new InvalidDataException();
+                    }
+
                     uow.StatisticRepository().Add(new BattleResult(user1, user2, winner));
-                    uow.UserRepository().UpdateElo(uow.UserRepository().GetById(user1), 5);
-                    uow.UserRepository().UpdateElo(uow.UserRepository().GetById(user2), -3);
+                    uow.UserRepository().UpdateElo(u1, 5);
+                    uow.UserRepository().UpdateElo(u2, -3);
                 }
             }
             else

@@ -10,7 +10,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
     public class DeckCardRepository : IRepository<DeckCard>
     {
-        NpgsqlConnection npgsqlConnection = null;
+        NpgsqlConnection npgsqlConnection;
         public DeckCardRepository(NpgsqlConnection npgsqlConnection)
         {
             this.npgsqlConnection = npgsqlConnection;

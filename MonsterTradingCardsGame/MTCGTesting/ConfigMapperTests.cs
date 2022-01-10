@@ -20,7 +20,7 @@ namespace MTCGTesting
         [Test]
         public void Test_ConfigMapper()
         {
-            ConfigMapper mapper;
+            ConfigMapper? mapper;
 
             using (var sr = new StreamReader("..\\..\\..\\..\\config.json"))
             {
@@ -43,7 +43,7 @@ namespace MTCGTesting
         [Test]
         public void Test_PackageCreationMapper()
         {
-            PackageCreationMapper mapper;
+            PackageCreationMapper? mapper;
             using (var sr = new StreamReader("..\\..\\..\\..\\PackageCreationConfig.json"))
             {
                 try
@@ -64,7 +64,7 @@ namespace MTCGTesting
         [Test]
         public void Test_RulesMapper()
         {
-            RulesMapper mapper;
+            RulesMapper? mapper;
             using (var sr = new StreamReader("..\\..\\..\\..\\rules.json"))
             {
                 try

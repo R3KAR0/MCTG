@@ -13,40 +13,32 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
     public class UserRepository : IRepository<User>
     {
-        NpgsqlConnection npgsqlConnection = null;
+        NpgsqlConnection npgsqlConnection;
         public UserRepository(NpgsqlConnection npgsqlConnection) 
         {
             this.npgsqlConnection = npgsqlConnection;
         }
         public User? Add(User obj)
         {
-            try
+            using var cmd = new NpgsqlCommand("INSERT INTO users (u_id, username, u_password, coins, u_description, elo) VALUES ((@u_id), (@username), (@u_password), (@coins), (@u_description), (@elo))", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
+            cmd.Parameters.AddWithValue("username", obj.Username);
+            cmd.Parameters.AddWithValue("u_password", obj.Password);
+            cmd.Parameters.AddWithValue("coins", obj.Coins);
+            cmd.Parameters.AddWithValue("u_description", obj.Description);
+            cmd.Parameters.AddWithValue("elo", obj.Elo);
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+            if (res != 0)
             {
-                using var cmd = new NpgsqlCommand("INSERT INTO users (u_id, username, u_password, coins, u_description, elo) VALUES ((@u_id), (@username), (@u_password), (@coins), (@u_description), (@elo))", npgsqlConnection);
-
-                cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
-                cmd.Parameters.AddWithValue("username", obj.Username);
-                cmd.Parameters.AddWithValue("u_password", obj.Password);
-                cmd.Parameters.AddWithValue("coins", obj.Coins);
-                cmd.Parameters.AddWithValue("u_description", obj.Description);
-                cmd.Parameters.AddWithValue("elo", obj.Elo);
-
-                cmd.Prepare();
-                int res = cmd.ExecuteNonQuery();
-                if (res != 0)
-                {
-                    return obj;
-                }
-                else
-                {
-                    return null;
-                }
+                return obj;
             }
-            catch(Exception)
+            else
             {
                 return null;
             }
-
         }
 
         public bool Delete(User obj)
@@ -85,7 +77,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         {
             using var cmd = new NpgsqlCommand("SELECT * FROM users", npgsqlConnection);
 
-            List<User?> users = new();
+            List<User> users = new();
             using (var reader = cmd.ExecuteReader())
             {
                 while(reader.Read())

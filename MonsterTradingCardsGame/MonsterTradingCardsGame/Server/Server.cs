@@ -33,6 +33,7 @@ namespace MonsterTradingCardsGame.Server
                                   .ToList();
             foreach (var method in methods)
             {
+               
                 EndPointAttribute attr = (EndPointAttribute)method.GetCustomAttributes(typeof(EndPointAttribute), true)[0];
                 if (attr != null)
                 {
@@ -41,8 +42,16 @@ namespace MonsterTradingCardsGame.Server
                     {
                         continue;
                     }
-                    EndPointPaths.Add(new Tuple<string,EHTTPMethod>(attr.Path, attr.HTTPMethod), new Tuple<IController, MethodInfo>(method.DeclaringType as IController, method));
-                    Log.Information($"Registered Endpoint: {attr.Path} HTTPMethod: {attr.HTTPMethod} Method: {method.Name} in {method.DeclaringType.Name}");
+
+                    if (method == null) throw new NullReferenceException();
+                    var cont = method.DeclaringType as IController;
+                    if (cont == null) throw new NullReferenceException();
+
+                    EndPointPaths.Add(new Tuple<string,EHTTPMethod>(attr.Path, attr.HTTPMethod), new Tuple<IController, MethodInfo>(cont, method));
+
+                    var declare = method.DeclaringType;
+                    if (declare == null) throw new NullReferenceException();
+                    Log.Information($"Registered Endpoint: {attr.Path} HTTPMethod: {attr.HTTPMethod} Method: {method.Name} in {declare.Name}");
                 }
             }
 
@@ -52,8 +61,12 @@ namespace MonsterTradingCardsGame.Server
                                   .ToList();
             foreach (var method in authMethods)
             {
+                if (method == null) throw new NullReferenceException();
+                var authDeclaringType = method.DeclaringType;
+                if (authDeclaringType == null) throw new NullReferenceException();
+
                 AuthentificationMethods.Add(method);
-                Log.Information($"Authentification registered for {method.Name} in {method.DeclaringType.Name}");
+                Log.Information($"Authentification registered for {method.Name} in {authDeclaringType.Name}");
             }
 
 

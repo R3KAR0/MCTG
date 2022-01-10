@@ -52,7 +52,10 @@ namespace MonsterTradingCardsGame.Server.Controller
                 {
                     tradeOffer = JsonSerializer.Deserialize<TradeOfferDTO>(content);
                     if (tradeOffer == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
-                    if(unit.CardRepository().GetById(tradeOffer.CardId).Owner.ToString() != user.Id.ToString()) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+                    var card = unit.CardRepository().GetById(tradeOffer.CardId);
+                    if (card == null) throw new InvalidDataException();
+                    if (card.Owner.ToString() != user.Id.ToString()) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
 
                     var decksOfCard = unit.DeckCardRepository().GetByCardId(tradeOffer.CardId).ToList();
                     if (decksOfCard.Count > 0)
@@ -89,7 +92,10 @@ namespace MonsterTradingCardsGame.Server.Controller
                 {
                     trade = JsonSerializer.Deserialize<TradingDTO>(content);
                     if (trade == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
-                    if (unit.CardRepository().GetById(trade.BuyerId).Owner.ToString() != user.Id.ToString() || trade.BuyerId == trade.TradeId) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+                    var card = unit.CardRepository().GetById(trade.BuyerId);
+                    if (card == null) throw new Exception();
+                    if (card.Owner.ToString() != user.Id.ToString() || trade.BuyerId == trade.TradeId) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
 
                     var buyerCard = unit.CardRepository().GetById(trade.BuyerId);
                     var tradeCard = unit.CardRepository().GetById(trade.TradeId);
@@ -143,9 +149,15 @@ namespace MonsterTradingCardsGame.Server.Controller
                     delete = JsonSerializer.Deserialize<DeleteTradeOfferDTO>(content);
                     if (delete == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
 
-                    if (unit.CardRepository().GetById(delete.CardId).Owner != user.Id) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
 
-                    var result = unit.TradeOfferRepository().Delete(unit.TradeOfferRepository().GetById(delete.CardId));
+                    var card = unit.CardRepository().GetById(delete.CardId);
+                    if (card == null) throw new InvalidDataException();
+                    if (card.Owner != user.Id) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+                    var tradeOffer = unit.TradeOfferRepository().GetById(delete.CardId);
+                    if(tradeOffer == null) throw new InvalidDataException();
+
+                    var result = unit.TradeOfferRepository().Delete(tradeOffer);
                     if(result)
                     {
                         return new JsonResponseDTO("", System.Net.HttpStatusCode.NoContent);

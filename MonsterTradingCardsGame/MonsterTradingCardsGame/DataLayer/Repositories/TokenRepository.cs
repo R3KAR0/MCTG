@@ -10,7 +10,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
     public class TokenRepository : IRepository<AuthToken>
     {
-        NpgsqlConnection npgsqlConnection = null;
+        NpgsqlConnection npgsqlConnection;
         public TokenRepository(NpgsqlConnection npgsqlConnection)
         {
             this.npgsqlConnection = npgsqlConnection;
@@ -93,6 +93,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         {
             using var cmd = new NpgsqlCommand("SELECT * FROM auth_token WHERE u_id=@u_id", npgsqlConnection);
 
+            if (id == null) throw new InvalidDataException();
             cmd.Parameters.AddWithValue("u_id", id.Value.ToString());
 
             using (var reader = cmd.ExecuteReader())

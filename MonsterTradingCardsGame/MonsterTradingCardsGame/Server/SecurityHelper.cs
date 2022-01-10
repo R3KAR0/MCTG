@@ -28,6 +28,8 @@ namespace MonsterTradingCardsGame.Server
             using (var unit = new UnitOfWork())
             {
                 var user = unit.UserRepository().GetByUsername(username);
+                if (user == null) throw new InvalidDataException();
+
                 unit.TokenRepository().Add(new AuthToken(user.Id, validUntil));
                 Log.Information($"Generated and saved token for username={username}!");
             }
@@ -56,7 +58,10 @@ namespace MonsterTradingCardsGame.Server
 
             using (Aes aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(Program.GetConfigMapper().Secret);
+                var mapper = Program.GetConfigMapper();
+                if (mapper == null) throw new NullReferenceException();
+
+                aes.Key = Encoding.UTF8.GetBytes(mapper.Secret);
                 aes.IV = iv;
 
                 ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
@@ -84,7 +89,10 @@ namespace MonsterTradingCardsGame.Server
 
             using (Aes aes = Aes.Create())
             {
-                aes.Key = Encoding.UTF8.GetBytes(Program.GetConfigMapper().Secret);
+                var mapper = Program.GetConfigMapper();
+                if (mapper == null) throw new NullReferenceException();
+
+                aes.Key = Encoding.UTF8.GetBytes(mapper.Secret);
                 aes.IV = iv;
                 ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
 

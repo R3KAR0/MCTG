@@ -6,7 +6,7 @@ namespace MTCGTesting
     public class HTTPParserTests
     {
 
-        string demoHTTP;
+        string demoHTTP = "";
         [SetUp]
         public void Setup()
         {

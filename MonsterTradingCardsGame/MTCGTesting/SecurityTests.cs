@@ -14,10 +14,11 @@ namespace MTCGTesting
 {
     public class SecurityTests
     {
-        ConfigMapper mapper;
-        string token;
+        ConfigMapper? mapper;
+        string? token;
         string username = "username";
         DateTime dateTime = DateTime.Now;
+
         [SetUp]
         public void Setup()
         {
@@ -30,6 +31,11 @@ namespace MTCGTesting
         {
             try
             {
+                if (token == null)
+                {
+                    throw new Exception();
+                }
+
                 var encrypted = SecurityHelper.EncryptString(token);
                 if (encrypted.Contains(username) == false && encrypted.Contains(dateTime.ToString()) == false)
                 {
@@ -47,6 +53,11 @@ namespace MTCGTesting
         {
             try
             {
+                if (token == null)
+                {
+                    throw new Exception();
+                }
+
                 var encrypted = SecurityHelper.EncryptString(token);
                 var decrypted = SecurityHelper.DecryptString(encrypted);
 
@@ -62,6 +73,11 @@ namespace MTCGTesting
         [Test]
         public void Test_sha256Length()
         {
+            if (token == null)
+            {
+                throw new Exception();
+            }
+
             var hash1 = SecurityHelper.sha256_hash(token);
             var hash2 = SecurityHelper.sha256_hash(username);
             Assert.AreEqual(hash1.Length, 64);
