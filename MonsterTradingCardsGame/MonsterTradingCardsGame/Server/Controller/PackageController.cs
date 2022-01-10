@@ -30,9 +30,7 @@ namespace MonsterTradingCardsGame.Server.Controller
             {
                 try
                 {
-                    
-                    user.SetCoins(package.Price * -1);
-                    uow.UserRepository().Update(user);
+                    user = uow.UserRepository().UpdateCoins(user, package.Price * -1);
                     uow.PackageRepository().Add(package);
                     foreach (var card in package.Cards)
                     {

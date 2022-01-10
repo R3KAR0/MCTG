@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
-    public class TradeRepository : IRepository<TradeRecord>
+    public class TradeRecordRepository : IRepository<TradeRecord>
     {
         public TradeRecord? Add(TradeRecord obj)
         {

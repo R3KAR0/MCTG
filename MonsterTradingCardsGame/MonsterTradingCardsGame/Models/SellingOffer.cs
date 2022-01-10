@@ -40,7 +40,7 @@ namespace MonsterTradingCardsGame.Models
         public bool SetPrice(int val)
         {
             if (val < 0) return false;
-            SetPrice = val;
+            Price = val;
             return true;
         }
     }

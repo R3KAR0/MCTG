@@ -147,19 +147,19 @@ namespace MonsterTradingCardsGame.DataLayer
 
         public void CreateTransaction()
         {
-            Log.Information("Transaction started");
+            //Log.Information("Transaction started");
             sqlTran = npgsqlConnection.BeginTransaction();
         }
 
         public void Commit()
         {
-            Log.Information("Commited changes");
+            //Log.Information("Commited changes");
             sqlTran?.Commit();
         }
 
         public void Rollback()
         {
-            Log.Information("Rollback started");
+            //Log.Information("Rollback started");
             sqlTran?.Rollback();
             sqlTran = null;
         }

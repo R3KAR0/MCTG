@@ -18,7 +18,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public Deck? Add(Deck obj)
         {
-            using var cmd = new NpgsqlCommand("INSERT INTO deck (d_id, d_description, creationtime, u_id) VALUES ((@d_id), (@d_description), (@creationtime), (@u_id))", npgsqlConnection);
+            using var cmd = new NpgsqlCommand("INSERT INTO decks (d_id, d_description, creationtime, u_id) VALUES ((@d_id), (@d_description), (@creationtime), (@u_id))", npgsqlConnection);
 
             cmd.Parameters.AddWithValue("d_id", obj.Id.ToString());
             cmd.Parameters.AddWithValue("d_description", obj.Description);

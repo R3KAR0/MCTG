@@ -80,7 +80,7 @@ namespace MonsterTradingCardsGame.Models
 
         public bool SetDescription(string newDescription)
         {
-            if (newDescription.Length > 2048)
+            if (newDescription.Length > 128)
             {
                 return false;
             }

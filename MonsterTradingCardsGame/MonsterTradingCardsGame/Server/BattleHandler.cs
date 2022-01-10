@@ -14,19 +14,19 @@ namespace MonsterTradingCardsGame.Server
     {
         private static object queueLock = new();
         private static object hardlock = new();
-        static List<Guid?> queue = new List<Guid?>();
+        static List<Guid> queue = new List<Guid>();
 
-        public static async Task<BattleLog> Battle(Guid guid)
+        public static BattleLog Battle(Guid guid)
         { 
             lock(queueLock)
             {
                 queue.Add(guid);
             }
-            var res = await Calculate(guid);
+            var res = Calculate(guid);
             return res;
         }
 
-        public static async Task<BattleLog> Calculate(Guid guid)
+        public static BattleLog Calculate(Guid guid)
         {
             while(queue.Count < 2)
             {
@@ -38,8 +38,8 @@ namespace MonsterTradingCardsGame.Server
                 queue.Remove(user1);
                 var user2 = queue.First();
                 queue.Remove(user2);
-                var decks = GetDecks(user1.Value, user2.Value);
-                var res = Calculate(user1.Value, user2.Value, decks.Item1, decks.Item2);
+                var decks = GetDecks(user1, user2);
+                var res = Calculate(user1, user2, decks.Item1, decks.Item2);
 
             }
             return new BattleLog(new List<string>(), new Guid(), new Guid(), null);
@@ -47,29 +47,34 @@ namespace MonsterTradingCardsGame.Server
 
         private static Tuple<List<Card>,List<Card>> GetDecks(Guid user1, Guid user2)
         {
-           /* List<Card> user1Deck = new List<Card>();
+           List<Card> user1Deck = new List<Card>();
             List<Card> user2Deck = new List<Card>();
 
             using (var uow = new UnitOfWork())
             {
-                var deckCards = uow.DeckCardRepository().GetByDeckId(uow.UserRepository().GetById(user1).Value);
+                var deckid1 = uow.UserSelectedDeckRepository().GetById(user1)?.DeckId;
+                if (deckid1 == null) throw new InvalidDataException();
+                var deckCards = uow.DeckCardRepository().GetByDeckId(deckid1.Value);
                 user1Deck = new List<Card>();
                 foreach (var deckCard in deckCards)
                 {
-                    user1Deck.Add(uow.CardRepository().GetById(deckCard.CardId));
+                    var card = uow.CardRepository().GetById(deckCard.CardId);
+                    if(card == null) throw new InvalidDataException();
+                    user1Deck.Add(card);
                 }
 
-                var deckCards2 = uow.DeckCardRepository().GetByDeckId(uow.UserRepository().GetById(user2).DeckId.Value);
+                var deckid2 = uow.UserSelectedDeckRepository().GetById(user2)?.DeckId;
+                if (deckid2 == null) throw new InvalidDataException();
+                var deckCards2 = uow.DeckCardRepository().GetByDeckId(deckid2.Value);
                 user2Deck = new List<Card>();
                 foreach (var deckCard in deckCards2)
                 {
-                    user2Deck.Add(uow.CardRepository().GetById(deckCard.CardId));
+                    var card = uow.CardRepository().GetById(deckCard.CardId);
+                    if (card == null) throw new InvalidDataException();
+                    user2Deck.Add(card);
                 }
             }
-
-            return Tuple.Create(user1Deck, user2Deck);*/
-           throw new NotImplementedException();
-
+            return Tuple.Create(user1Deck, user2Deck);
         }
 
         public static Tuple<Guid?, List<string>> Calculate(Guid user1, Guid user2, List<Card> user1Deck, List<Card> user2Deck)

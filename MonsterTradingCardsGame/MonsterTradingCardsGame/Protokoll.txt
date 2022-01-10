@@ -22,15 +22,17 @@ Zudem müsste beim Startup für jeden User-Eintrag in der DB eine Route geladen 
 **************************************
 Herangehensweise für GET /localhost/users/{username} END
 **************************************
- 3) Der Einfachheit halber wurde PUT /localhost/users/{username} auf PUT /localhost/users geändert, da hierbei ebenfalls der 
+ 3) Packages werden nicht händisch angelegt sondern bei Anfrage automatisch erstellt, die Wahrscheinlichkeiten für die einzelnen Karten
+    werden aus einer Konfigurationsdatei geladen.
+ 4) Der Einfachheit halber wurde PUT /localhost/users/{username} auf PUT /localhost/users geändert, da hierbei ebenfalls der 
     Token mitgegeben wird. 
     Falls die Routen benötigt werden würden (z.B.: um einem Admin die Veränderung von Userdaten zu ermöglichen, 
     was de facto auch ein Sicherheitsproblem bedingen würde), würde dies wie bei GET /localhost/users/{username} umgesetzt werden.
 
- 4) Im Curl-Skript findet sich ein Request für verschiedene "Darstellungsformen" der Decks. Da es hierzu keine Angabe 
+ 5) Im Curl-Skript findet sich ein Request für verschiedene "Darstellungsformen" der Decks. Da es hierzu keine Angabe 
     bzw. keine Beschreibung in der Angabe gibt, wurde dies nicht umgesetzt. 
 
- 5) Beim Trading wurde auch auf die TradeId in der Route verzichtet und über den Body als json-DTO übergeben.
+ 6) Beim Trading wurde auch auf die TradeId in der Route verzichtet und über den Body als json-DTO übergeben.
 
 
 

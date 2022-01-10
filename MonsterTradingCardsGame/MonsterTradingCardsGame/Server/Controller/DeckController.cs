@@ -2,6 +2,8 @@
 using MonsterTradingCardsGame.DataLayer.DTO;
 using MonsterTradingCardsGame.Exceptions;
 using MonsterTradingCardsGame.Models;
+using Npgsql;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +36,11 @@ namespace MonsterTradingCardsGame.Server.Controller
                         var deckCards = unit.DeckCardRepository().GetByDeckId(deck.Id);
                         foreach (var deckcard in deckCards)
                         {
-                            deck.Cards.Add(unit.CardRepository().GetById(deckcard.CardId));
+                            var card = unit.CardRepository().GetById(deckcard.CardId);
+                            if(card != null)
+                            {
+                                deck.Cards.Add(card);
+                            }                      
                         }
                     }
                     return new JsonResponseDTO(JsonSerializer.Serialize(new DecksDTO(decks)), System.Net.HttpStatusCode.OK);
@@ -46,7 +52,31 @@ namespace MonsterTradingCardsGame.Server.Controller
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
                 }
             }
+        }
 
+        [Authentification]
+        [EndPointAttribute("/decks", "POST")]
+        public static JsonResponseDTO CreateNewDeck(string token, string content)
+        {
+            Guid? userID = SecurityHelper.GetUserIdFromToken(token);
+            if (userID == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+
+            using (UnitOfWork unit = new UnitOfWork())
+            {
+                try
+                {
+                    CreateDeckDTO? dto = JsonSerializer.Deserialize<CreateDeckDTO>(content);
+                    if(dto == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+                    unit.DeckRepository().Add(new Deck(Guid.NewGuid(),userID.Value,dto.Description,DateTime.Now));
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.Created);
+
+                }
+                catch (Exception)
+                {
+                    unit.Rollback();
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
         }
 
         [Authentification]
@@ -62,11 +92,14 @@ namespace MonsterTradingCardsGame.Server.Controller
                 try
                 {
                     cardIdsDTO = JsonSerializer.Deserialize<CardIdListDeckDTO>(content);
-                    if (cardIdsDTO.CardIds.Count != Program.GetConfigMapper().DeckSize)
+                    if (cardIdsDTO == null) throw new InvalidDataException();
+                    if (cardIdsDTO.CardIds.Count != Program.GetConfigMapper()?.DeckSize)
                     {
                         throw new InvalidDataException();
                     }
+                    
                     var deck = unit.DeckRepository().GetById(cardIdsDTO.DeckId);
+                    if (deck==null) throw new InvalidDataException();
                     if (deck.UserId != userID)
                     {
                         throw new NotAuthorizedException();
@@ -86,6 +119,17 @@ namespace MonsterTradingCardsGame.Server.Controller
                 {
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
                 }
+                catch (PostgresException e)
+                {
+                    if (e.Code == Program.GetConfigMapper().PostgresDoubleEntry)
+                    {
+                        Log.Error($"Double entry for Cards in Deck");
+                        unit.Rollback();
+                        return new JsonResponseDTO("", System.Net.HttpStatusCode.Conflict);
+                    }
+                    unit.Rollback();
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+                }
                 catch (Exception)
                 {
                     unit.Rollback();
@@ -95,25 +139,36 @@ namespace MonsterTradingCardsGame.Server.Controller
         }
 
         [Authentification]
-        [EndPointAttribute("/decks", "POST")]
+        [EndPointAttribute("/decks/select", "POST")]
         public static JsonResponseDTO SelectDeck(string token, string content)
         {
             DeckSelectionDTO deckSelectionDTO;
             var user = SecurityHelper.GetUserFromToken(token);
-            if (user.Id == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+            if(user == null) throw new NotAuthorizedException();
 
             using (UnitOfWork unit = new UnitOfWork())
             {
                 try
                 {
                     deckSelectionDTO = JsonSerializer.Deserialize<DeckSelectionDTO>(content);
-
-                    var deck = unit.DeckRepository().GetById(deckSelectionDTO.DeckId.Value);
+                    if (deckSelectionDTO == null) throw new InvalidDataException(); 
+                    var deck = unit.DeckRepository().GetById(deckSelectionDTO.DeckId);
+                    if (deck == null) throw new InvalidDataException();
                     if (deck.UserId != user.Id)
                     {
                         throw new NotAuthorizedException();
                     }
-                    unit.UserRepository().UpdateSelectedDeck(user, deckSelectionDTO.DeckId.Value);
+                    var existingEntry = unit.UserSelectedDeckRepository().GetById(user.Id);
+                    
+                    if (existingEntry == null)
+                    {
+                        unit.UserSelectedDeckRepository().Add(new(user.Id, deckSelectionDTO.DeckId));
+                    }
+                    else
+                    {
+                        unit.UserSelectedDeckRepository().Update(new(user.Id, deckSelectionDTO.DeckId));
+                    }
+                    
 
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.Accepted);
                 }

@@ -226,5 +226,24 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 return null;
             }
         }
+
+        public User? UpdateCoins(User obj, int change)
+        {
+            using var cmd = new NpgsqlCommand("UPDATE users SET coins=@coins WHERE u_id=@u_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
+            cmd.Parameters.AddWithValue("coins", obj.Coins + change);
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+            if (res != 0)
+            {
+                return GetById(obj.Id);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
