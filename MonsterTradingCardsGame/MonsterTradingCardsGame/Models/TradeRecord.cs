@@ -10,14 +10,14 @@ namespace MonsterTradingCardsGame.Models
 {
     public class TradeRecord : IJsonConvertable
     {
-        [JsonPropertyName("seller")]
+        [JsonPropertyName("sellerId")]
         public Guid SellerId { get; private set; }
-        [JsonPropertyName("buyer")]
+        [JsonPropertyName("buyerId")]
         public Guid BuyerId { get; private set; }
 
-        [JsonPropertyName("sellerCard")]
+        [JsonPropertyName("sellerCardId")]
         public Guid SellerCardId { get; private set; }
-        [JsonPropertyName("buyerCard")]
+        [JsonPropertyName("buyerCardId")]
         public Guid BuyerCardId { get; private set; }
 
         [JsonPropertyName("timestamp")]
@@ -30,6 +30,12 @@ namespace MonsterTradingCardsGame.Models
             SellerCardId = sellerCardId;
             BuyerCardId = buyerCardId;
             TimeStamp = DateTime.Now;
+        }
+
+        [JsonConstructor]
+        public TradeRecord(Guid sellerId, Guid buyerId, Guid sellerCardId, Guid buyerCardId, DateTime timeStamp) : this(sellerId, buyerId, sellerCardId, buyerCardId)
+        {
+            TimeStamp = timeStamp;
         }
     }
 }

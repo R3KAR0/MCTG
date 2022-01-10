@@ -12,7 +12,7 @@ namespace MonsterTradingCardsGame.Models
     {
         [JsonPropertyName("id")]
         public Guid Id { get; private set; }
-        [JsonPropertyName("buyer")]
+        [JsonPropertyName("buyerid")]
         public Guid BuyerID { get; private set; }
         [JsonPropertyName("description")]
         public string Description { get; private set; }
@@ -23,14 +23,14 @@ namespace MonsterTradingCardsGame.Models
         public int Price {get;private set;}  
 
         [JsonPropertyName("timestamp")]
-        public DateTime CreationDate { get;private set;}
+        public DateTime TimeStamp { get;private set;}
 
         public Package(Guid buyerId)
         {
             Id = Guid.NewGuid();
             BuyerID = buyerId;
             Price = Program.GetPackageCreationMapper().PackagePrize;
-            CreationDate = DateTime.Now;
+            TimeStamp = DateTime.Now;
             Description = Program.GetPackageCreationMapper().PackageDescription;
             Cards = CreateCards();
         }
@@ -41,16 +41,16 @@ namespace MonsterTradingCardsGame.Models
             Description = description ?? throw new ArgumentNullException(nameof(description));
             Cards = new();
             Price = price;
-            CreationDate = creationDate;
+            TimeStamp = creationDate;
         }
-
-        public Package(Guid iD, Guid buyerID, string description, List<Card> cards, int price, DateTime creationDate) : this(iD)
+        [JsonConstructor]
+        public Package(Guid iD, Guid buyerID, string description, List<Card> cards, int price, DateTime timestamp) : this(iD)
         {
             BuyerID = buyerID;
             Description = description ?? throw new ArgumentNullException(nameof(description));
             Cards = cards ?? throw new ArgumentNullException(nameof(cards));
             Price = price;
-            CreationDate = creationDate;
+            TimeStamp = timestamp;
         }
 
         private List<Card> CreateCards()

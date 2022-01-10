@@ -9,13 +9,13 @@ namespace MonsterTradingCardsGame.Models
 {
     internal class BuyRecord
     {
-        [JsonPropertyName("seller")]
+        [JsonPropertyName("sellerid")]
         public Guid SellerId { get; private set; }
-        [JsonPropertyName("buyer")]
+        [JsonPropertyName("buyerid")]
         public Guid BuyerId { get; private set; }
 
         [JsonPropertyName("sellerCard")]
-        public Guid SellerCardId { get; private set; }
+        public Guid sellerCardId { get; private set; }
         [JsonPropertyName("amount")]
         public int Amount { get; private set; }
 
@@ -26,9 +26,19 @@ namespace MonsterTradingCardsGame.Models
         {
             SellerId = sellerId;
             BuyerId = buyerId;
-            SellerCardId = sellerCardId;
+            this.sellerCardId = sellerCardId;
             Amount = amount;
             TimeStamp = DateTime.Now;
+        }
+
+        [JsonConstructor]
+        public BuyRecord(Guid sellerId, Guid buyerId, Guid sellerCardId, int amount, DateTime timestamp)
+        {
+            SellerId = sellerId;
+            BuyerId = buyerId;
+            this.sellerCardId = sellerCardId;
+            Amount = amount;
+            TimeStamp = timestamp;
         }
     }
 }

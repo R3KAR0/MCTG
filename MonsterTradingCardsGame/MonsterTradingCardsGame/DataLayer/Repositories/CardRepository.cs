@@ -20,13 +20,13 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             using var cmd = new NpgsqlCommand("INSERT INTO cards (c_id, u_id, p_id, c_description, c_kind, c_type, c_element, creationtime, damage) VALUES ((@c_id), (@u_id),(@p_id), (@c_description), (@c_kind), (@c_type), (@c_element), (@creationtime), (@damage))", npgsqlConnection);
 
             cmd.Parameters.AddWithValue("c_id", obj.Id.ToString());
-            cmd.Parameters.AddWithValue("u_id", obj.UserId.ToString());
-            cmd.Parameters.AddWithValue("p_id", obj.PackageId.ToString());
+            cmd.Parameters.AddWithValue("u_id", obj.Owner.ToString());
+            cmd.Parameters.AddWithValue("p_id", obj.Package.ToString());
             cmd.Parameters.AddWithValue("c_description", obj.Description);
             cmd.Parameters.AddWithValue("c_kind", obj.Kind);
-            cmd.Parameters.AddWithValue("c_type", obj.CardType);
+            cmd.Parameters.AddWithValue("c_type", obj.Type);
             cmd.Parameters.AddWithValue("c_element", obj.Element);
-            cmd.Parameters.AddWithValue("creationtime", new NpgsqlTypes.NpgsqlDateTime(obj.CreationDate));
+            cmd.Parameters.AddWithValue("creationtime", new NpgsqlTypes.NpgsqlDateTime(obj.Timestamp));
             cmd.Parameters.AddWithValue("damage", obj.Damage);
 
             cmd.Prepare();

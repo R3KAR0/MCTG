@@ -12,28 +12,29 @@ namespace MonsterTradingCardsGame.Models
         public SellingOffer(Guid cardId, Guid seller, DateTime creationDate, int price)
         {
             CardId = cardId;
-            Seller = seller;
-            CreationDate = creationDate;
+            SellerId = seller;
+            Timestamp = creationDate;
             Price = price;
         }
 
-        public SellingOffer(Guid cardId, Guid seller, Card? cardToSell, DateTime creationDate, int price)
+        [JsonConstructor]
+        public SellingOffer(Guid cardId, Guid seller, Card? cardToSell, DateTime timestamp, int price)
         {
             CardId = cardId;
-            Seller = seller;
-            CardToSell = cardToSell;
-            CreationDate = creationDate;
+            SellerId = seller;
+            Card = cardToSell;
+            Timestamp = timestamp;
             Price = price;
         }
 
         public Guid CardId { get; private set; }
 
-        [JsonPropertyName("seller")]
-        public Guid Seller { get; private set; }
+        [JsonPropertyName("sellerid")]
+        public Guid SellerId { get; private set; }
         [JsonPropertyName("card")]
-        public Card? CardToSell { get; set; }
+        public Card? Card { get; set; }
         [JsonPropertyName("timestamp")]
-        public DateTime CreationDate { get; private set; }
+        public DateTime Timestamp { get; private set; }
         [JsonPropertyName("Price")]
         public int Price { get; private set; }
 

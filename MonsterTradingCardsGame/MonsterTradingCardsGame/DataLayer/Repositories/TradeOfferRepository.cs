@@ -22,8 +22,8 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             using var cmd = new NpgsqlCommand("INSERT INTO trading_offer (c_id, seller, creationtime, desiredType, minDamage) VALUES ((@c_id), (@seller),(@creationtime), (@desiredType), (@minDamage))", npgsqlConnection);
 
             cmd.Parameters.AddWithValue("c_id", obj.CardId.ToString());
-            cmd.Parameters.AddWithValue("seller", obj.Seller.ToString());
-            cmd.Parameters.AddWithValue("creationtime", new NpgsqlTypes.NpgsqlDateTime(obj.CreationDate));
+            cmd.Parameters.AddWithValue("seller", obj.SellerId.ToString());
+            cmd.Parameters.AddWithValue("creationtime", new NpgsqlTypes.NpgsqlDateTime(obj.Timestamp));
             cmd.Parameters.AddWithValue("desiredType", obj.DesiredType);
             cmd.Parameters.AddWithValue("minDamage", obj.MinDamage);
 

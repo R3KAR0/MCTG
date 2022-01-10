@@ -26,7 +26,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             cmd.Parameters.AddWithValue("username", obj.Username);
             cmd.Parameters.AddWithValue("u_password", obj.Password);
             cmd.Parameters.AddWithValue("coins", obj.Coins);
-            cmd.Parameters.AddWithValue("u_description", obj.ProfileDescription);
+            cmd.Parameters.AddWithValue("u_description", obj.Description);
             cmd.Parameters.AddWithValue("elo", obj.Elo);
             if (obj.Picture == null)
             {
@@ -138,7 +138,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
             cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
             cmd.Parameters.AddWithValue("u_password", obj.Password);
-            cmd.Parameters.AddWithValue("u_description", obj.ProfileDescription);
+            cmd.Parameters.AddWithValue("u_description", obj.Description);
             if (obj.Picture == null)
             {
                 cmd.Parameters.AddWithValue("picture", DBNull.Value);

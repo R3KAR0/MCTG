@@ -10,6 +10,11 @@ namespace MonsterTradingCardsGame.DataLayer.DTO
 {
     public class DecksDTO
     {
+        public DecksDTO()
+        {
+            Decks = new List<Deck>();
+        }
+
         public DecksDTO(List<Deck> decks)
         {
             Decks = decks;

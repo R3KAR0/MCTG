@@ -107,7 +107,7 @@ namespace MonsterTradingCardsGame.Server.Controller
                     foreach (var cardId in cardIdsDTO.CardIds)
                     {
                         var card = unit.CardRepository().GetById(cardId);
-                        if (card.UserId != userID)
+                        if (card.Owner != userID)
                         {
                             throw new NotAuthorizedException();
                         }
@@ -183,5 +183,40 @@ namespace MonsterTradingCardsGame.Server.Controller
                 }
             }
         }
+
+        [Authentification]
+        [EndPointAttribute("/decks/select", "GET")]
+        public static JsonResponseDTO GetSelectDeck(string token, string content)
+        {
+            var user = SecurityHelper.GetUserFromToken(token);
+            if (user == null) throw new NotAuthorizedException();
+
+            using (UnitOfWork unit = new UnitOfWork())
+            {
+                try
+                {
+                    var deckSelection = unit.UserSelectedDeckRepository().GetById(user.Id);
+                    if(deckSelection!=null)
+                    {
+                        var deck = unit.DeckRepository().GetById(deckSelection.DeckId);
+                        if(deck != null)
+                        {
+                            return new JsonResponseDTO(JsonSerializer.Serialize(deck), System.Net.HttpStatusCode.OK);
+                        }
+                    }
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.NoContent);
+                }
+                catch (NotAuthorizedException)
+                {
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+                }
+                catch (Exception)
+                {
+                    unit.Rollback();
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+        }
+
     } 
 }

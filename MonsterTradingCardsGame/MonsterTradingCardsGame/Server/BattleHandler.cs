@@ -14,20 +14,45 @@ namespace MonsterTradingCardsGame.Server
     {
         private static object queueLock = new();
         private static object hardlock = new();
-        static List<Guid> queue = new List<Guid>();
+        static List<Tuple<List<Card>,Guid>> queue = new();
+        static Dictionary<Guid, BattleLog?> pollingDict = new Dictionary<Guid, BattleLog?>();
 
-        public static BattleLog Battle(Guid guid)
+        public static BattleLog? Battle(List<Card> userCards, Guid userId)
         { 
             lock(queueLock)
             {
-                queue.Add(guid);
+                if (!queue.Any(entry => entry.Item2 == userId))
+                {
+                    queue.Add(new(userCards, userId));
+                }
+                else
+                {
+                    return null;
+                }
             }
-            var res = Calculate(guid);
-            return res;
+            if(queue.Count >= 2)
+            {
+                var res = Calculate();
+                return res;
+            }
+            else
+            {
+
+                pollingDict.Add(userId, null);
+                BattleLog? log = pollingDict[userId];
+                while (log == null)
+                {
+                    Thread.Sleep(1000);
+                    log = pollingDict[userId];
+                }
+                return log;
+            }
+
         }
 
-        public static BattleLog Calculate(Guid guid)
+        public static BattleLog? Calculate()
         {
+            BattleLog result = null;
             while(queue.Count < 2)
             {
                 Thread.Sleep(300);
@@ -38,46 +63,12 @@ namespace MonsterTradingCardsGame.Server
                 queue.Remove(user1);
                 var user2 = queue.First();
                 queue.Remove(user2);
-                var decks = GetDecks(user1, user2);
-                var res = Calculate(user1, user2, decks.Item1, decks.Item2);
-
+                result = Calculate(user1.Item2, user2.Item2,  user1.Item1, user2.Item1);
             }
-            return new BattleLog(new List<string>(), new Guid(), new Guid(), null);
+            return result;
         }
 
-        private static Tuple<List<Card>,List<Card>> GetDecks(Guid user1, Guid user2)
-        {
-           List<Card> user1Deck = new List<Card>();
-            List<Card> user2Deck = new List<Card>();
-
-            using (var uow = new UnitOfWork())
-            {
-                var deckid1 = uow.UserSelectedDeckRepository().GetById(user1)?.DeckId;
-                if (deckid1 == null) throw new InvalidDataException();
-                var deckCards = uow.DeckCardRepository().GetByDeckId(deckid1.Value);
-                user1Deck = new List<Card>();
-                foreach (var deckCard in deckCards)
-                {
-                    var card = uow.CardRepository().GetById(deckCard.CardId);
-                    if(card == null) throw new InvalidDataException();
-                    user1Deck.Add(card);
-                }
-
-                var deckid2 = uow.UserSelectedDeckRepository().GetById(user2)?.DeckId;
-                if (deckid2 == null) throw new InvalidDataException();
-                var deckCards2 = uow.DeckCardRepository().GetByDeckId(deckid2.Value);
-                user2Deck = new List<Card>();
-                foreach (var deckCard in deckCards2)
-                {
-                    var card = uow.CardRepository().GetById(deckCard.CardId);
-                    if (card == null) throw new InvalidDataException();
-                    user2Deck.Add(card);
-                }
-            }
-            return Tuple.Create(user1Deck, user2Deck);
-        }
-
-        public static Tuple<Guid?, List<string>> Calculate(Guid user1, Guid user2, List<Card> user1Deck, List<Card> user2Deck)
+        public static BattleLog Calculate(Guid user1, Guid user2, List<Card> user1Deck, List<Card> user2Deck)
         {
             List<string> roundLog = new List<string>();
             var random = new Random();
@@ -92,10 +83,10 @@ namespace MonsterTradingCardsGame.Server
                 var user2Card = user2Deck[random.Next(user2Deck.Count)];
 
 
-                var specialRulesUser1 = mapper.SpecialRules.Where(rule => rule.element == user1Card.Element && rule.type == user1Card.CardType && rule.kind == user1Card.Kind).ToList();
-                var specialRulesUser2 = mapper.SpecialRules.Where(rule => rule.element == user2Card.Element && rule.type == user2Card.CardType && rule.kind == user2Card.Kind).ToList();
+                var specialRulesUser1 = mapper.SpecialRules.Where(rule => rule.element == user1Card.Element && rule.type == user1Card.Type && rule.kind == user1Card.Kind).ToList();
+                var specialRulesUser2 = mapper.SpecialRules.Where(rule => rule.element == user2Card.Element && rule.type == user2Card.Type && rule.kind == user2Card.Kind).ToList();
 
-                var applicable1 = specialRulesUser1.Where(rule => rule.killkind == user2Card.Kind && rule.killtype == user2Card.CardType).ToList();
+                var applicable1 = specialRulesUser1.Where(rule => rule.killkind == user2Card.Kind && rule.killtype == user2Card.Type).ToList();
                 if (applicable1.Count > 0)
                 {
                     if (applicable1.Any(rule => rule.killelement == EElement.ALL || rule.killelement == user2Card.Element))
@@ -109,7 +100,7 @@ namespace MonsterTradingCardsGame.Server
                     }
                 }
 
-                var applicable2 = specialRulesUser2.Where(rule => rule.killkind == user1Card.Kind && rule.killtype == user1Card.CardType).ToList();
+                var applicable2 = specialRulesUser2.Where(rule => rule.killkind == user1Card.Kind && rule.killtype == user1Card.Type).ToList();
                 if (applicable2.Count > 0)
                 {
                     if (applicable2.Any(rule => rule.killelement == EElement.ALL || rule.killelement == user1Card.Element))
@@ -123,7 +114,7 @@ namespace MonsterTradingCardsGame.Server
                     }
                 }
 
-                if (user1Card.CardType != EType.MONSTER || user2Card.CardType != EType.SPELL)
+                if (user1Card.Type != EType.MONSTER || user2Card.Type != EType.SPELL)
                 {
                     var strongs1 = mapper.Strongs.Exists(strong => strong.StrongElement == user1Card.Element && strong.WeakElement == user2Card.Element);
                     var strongs2 = mapper.Strongs.Exists(strong => strong.StrongElement == user2Card.Element && strong.WeakElement == user1Card.Element);
@@ -171,20 +162,50 @@ namespace MonsterTradingCardsGame.Server
             if (user1Deck.Count == 0)
             {
                 winner = user2;
+                using(var uow = new UnitOfWork())
+                {
+                    uow.StatisticRepository().Add(new BattleResult(user1,user2, winner));
+                    uow.UserRepository().UpdateElo(uow.UserRepository().GetById(user2), 5);
+                    uow.UserRepository().UpdateElo(uow.UserRepository().GetById(user1), -3);
+                }
             }
             else if (user2Deck.Count == 0)
             {
                 winner = user1;
+                using (var uow = new UnitOfWork())
+                {
+                    uow.StatisticRepository().Add(new BattleResult(user1, user2, winner));
+                    uow.UserRepository().UpdateElo(uow.UserRepository().GetById(user1), 5);
+                    uow.UserRepository().UpdateElo(uow.UserRepository().GetById(user2), -3);
+                }
+            }
+            else
+            {
+                using (var uow = new UnitOfWork())
+                {
+                    uow.StatisticRepository().Add(new BattleResult(user1, user2, winner));
+                }
             }
 
             if (winner != null)
             {
                 Log.Information($"Winner: {winner}");
             }
+            else
             {
-                Log.Information($"After 100 Rounds the battle ended -> DRAW!");
+                Log.Information($"The battle ended after 100 rounds -> DRAW!");
             }
-            return new(winner, roundLog);
+            BattleLog gameLog = new BattleLog(roundLog, user1, user2, winner);
+
+            if(pollingDict.Keys.Any(key => key.ToString() == user1.ToString()))
+            {
+                pollingDict[user1] = gameLog;
+            }
+            else if(pollingDict.Keys.Any(key => key.ToString() == user1.ToString()))
+            {
+                pollingDict[user2] = gameLog;
+            }
+            return gameLog;
         }
 
     }

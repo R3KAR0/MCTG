@@ -9,12 +9,12 @@ namespace MonsterTradingCardsGame.DataLayer.DTO
 {
     public class ScoreboardDTO 
     {
-        public ScoreboardDTO(List<Tuple<string, int>> eloScores)
+        public ScoreboardDTO(List<UserScore> eloScores)
         {
-            EloScores = eloScores ?? throw new ArgumentNullException(nameof(eloScores));
+            EloScores = eloScores;
         }
 
         [JsonPropertyName("scores")]
-        public List<Tuple<string, int>> EloScores { get; private set; }
+        public List<UserScore> EloScores { get; private set; } = new();
     }
 }

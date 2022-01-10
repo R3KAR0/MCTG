@@ -52,14 +52,6 @@ namespace MonsterTradingCardsGame
             //    .CreateLogger();
 
             Setup();
-            //var con = containerBuilder.Build();
-
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.File("..\\Logs\\Log.txt")
-                .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
-                .CreateLogger();
-
             NpgsqlConnection.GlobalTypeMapper.UseJsonNet();
 
             Server.Server GameServer = Server.Server.Instance;
@@ -68,6 +60,12 @@ namespace MonsterTradingCardsGame
 
         private static void Setup()
         {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.File("..\\Logs\\Log.txt")
+                .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
+                .CreateLogger();
+
             using (var sr = new StreamReader("..\\..\\..\\config.json"))
             {
                 try

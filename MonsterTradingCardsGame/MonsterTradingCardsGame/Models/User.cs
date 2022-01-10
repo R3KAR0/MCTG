@@ -12,9 +12,9 @@ namespace MonsterTradingCardsGame.Models
             Id = Guid.NewGuid();
             Password = SecurityHelper.sha256_hash(password) ?? throw new ArgumentNullException(nameof(password));
             Coins = 20; // hardcoded? -> Config
-            UserDeck = new List<Card>();
+            Deck = new List<Card>();
             Stack = new List<Card>();
-            ProfileDescription = Program.GetConfigMapper().UserDescription;
+            Description = Program.GetConfigMapper().UserDescription;
             Picture = null;
             Elo = 100;
         }
@@ -25,7 +25,7 @@ namespace MonsterTradingCardsGame.Models
             Id = iD;
             Password = password ?? throw new ArgumentNullException(nameof(password));
             Coins = coins;
-            ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
+            Description = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
             Elo = elo;
 
         }
@@ -36,7 +36,21 @@ namespace MonsterTradingCardsGame.Models
             Id = iD;
             Password = password ?? throw new ArgumentNullException(nameof(password));
             Coins = coins;
-            ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
+            Description = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
+            Picture = picture;
+            Elo = elo;
+        }
+
+        [JsonConstructor]
+        public User(string username, Guid id, string password, int coins, List<Card> deck, List<Card> stack, string description, byte[]? picture, int elo)
+        {
+            Username = username ?? throw new ArgumentNullException(nameof(username));
+            Id = id;
+            Password = password ?? throw new ArgumentNullException(nameof(password));
+            Coins = coins;
+            Deck = deck ?? throw new ArgumentNullException(nameof(deck));
+            Stack = stack ?? throw new ArgumentNullException(nameof(stack));
+            Description = description ?? throw new ArgumentNullException(nameof(description));
             Picture = picture;
             Elo = elo;
         }
@@ -54,13 +68,13 @@ namespace MonsterTradingCardsGame.Models
         public int Coins { get; private set; }
 
         [JsonPropertyName("deck")]
-        public List<Card> UserDeck { get; private set; }
+        public List<Card> Deck { get; private set; }
 
         [JsonPropertyName("stack")]
         public List<Card> Stack { get; private set; }
 
         [JsonPropertyName("description")]
-        public string ProfileDescription { get; private set; }
+        public string Description { get; private set; }
 
         [JsonPropertyName("picture")]
         public byte[]? Picture { get; private set; }
@@ -84,7 +98,7 @@ namespace MonsterTradingCardsGame.Models
             {
                 return false;
             }
-            ProfileDescription = newDescription;
+            Description = newDescription;
             return true;
         }
 

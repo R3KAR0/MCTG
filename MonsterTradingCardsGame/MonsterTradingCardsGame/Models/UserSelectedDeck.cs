@@ -14,7 +14,6 @@ namespace MonsterTradingCardsGame.Models
             UserId = userId;
             DeckId = deckId;
         }
-
         [JsonPropertyName("userid")]
         public Guid UserId { get; private set; }
         [JsonPropertyName("deckid")]

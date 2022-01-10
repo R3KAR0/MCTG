@@ -9,21 +9,22 @@ namespace MonsterTradingCardsGame.Models
 {
     public  class Deck
     {
-        public Deck(Guid id, Guid userId, string description, DateTime creationDate)
+        public Deck(Guid id, Guid userId, string description, DateTime timestamp)
         {
             Id = id;
             UserId = userId;
             Description = description ?? throw new ArgumentNullException(nameof(description));
-            CreationDate = creationDate;
+            Timestamp = timestamp;
             Cards = new List<Card>();
         }
 
-        public Deck(Guid id, Guid userId, List<Card> cards, string description, DateTime creationDate)
+        [JsonConstructor]
+        public Deck(Guid id, Guid userId, string description, DateTime timestamp, List<Card> cards)
         {
             Id = id;
             UserId = userId;
             Description = description ?? throw new ArgumentNullException(nameof(description));
-            CreationDate = creationDate;
+            Timestamp = timestamp;
             Cards = cards;
         }
 
@@ -37,7 +38,7 @@ namespace MonsterTradingCardsGame.Models
         public string Description { get; private set; }
 
         [JsonPropertyName("timestamp")]
-        public DateTime CreationDate { get; private set; }
+        public DateTime Timestamp { get; private set; }
 
         [JsonPropertyName("cards")]
         public List<Card> Cards { get; set; }

@@ -28,8 +28,9 @@ namespace MonsterTradingCardsGame.Server.Controller
                 {
                     var results = unit.StatisticRepository().GetBattleResultsByUserId(user.Id);
                     var wins = results.Where(result => result.Winner == user.Id).ToList().Count;
-                    var loses = results.Where(result => result.Winner != user.Id).ToList().Count;
                     var draws = results.Where(result => result.Winner == null).ToList().Count;
+                    var loses = results.Where(result => result.Winner != user.Id).ToList().Count - draws;
+
 
                     var elo = user.Elo;
                     return new JsonResponseDTO(JsonSerializer.Serialize(new BattleResultsRepresentation(wins,loses,draws, elo)), System.Net.HttpStatusCode.OK);
@@ -55,10 +56,10 @@ namespace MonsterTradingCardsGame.Server.Controller
                 try
                 {
                     var users = unit.UserRepository().GetAll().OrderByDescending(user => user.Elo);
-                    List<Tuple<string, int>> scoreboard = new List<Tuple<string, int>>();
+                    List<UserScore> scoreboard = new();
                     foreach (var user in users)
                     {
-                        scoreboard.Add(new(user.Username, user.Elo));
+                        scoreboard.Add(new UserScore(user.Username, user.Elo));
                     }
                     return new JsonResponseDTO(JsonSerializer.Serialize(new ScoreboardDTO(scoreboard)), System.Net.HttpStatusCode.OK);
 

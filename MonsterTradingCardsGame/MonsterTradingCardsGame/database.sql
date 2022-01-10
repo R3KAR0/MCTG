@@ -6,7 +6,7 @@ CREATE TABLE users (
     username    varchar(40) NOT NULL UNIQUE,
     u_password  varchar(64) NOT NULL,
     coins   	integer NOT NULL,
-	u_description varchar(2048),
+	u_description varchar(128),
 	picture 	bytea,
 	elo			integer NOT NULL,
 	CHECK(coins >= 0)
@@ -14,7 +14,7 @@ CREATE TABLE users (
 
 CREATE TABLE decks (
 	d_id 			char(36) PRIMARY KEY,
-	d_description 	char(2048) NOT NULL,
+	d_description 	char(128) NOT NULL,
 	creationtime 	timestamp NOT NULL,
 	u_id			char(36) NOT NULL,
 	CONSTRAINT fk_deck_user FOREIGN KEY(u_id) REFERENCES users(u_id) 
@@ -33,7 +33,7 @@ CREATE TYPE e_element AS ENUM ('fire', 'water', 'neutral');
 
 CREATE TABLE packages (
     p_id        	char(36) PRIMARY KEY,
-    p_description 	varchar(2048) NOT NULL,
+    p_description 	varchar(128) NOT NULL,
 	creationtime 	timestamp NOT NULL,
 	price			integer NOT NULL,
 	buyer			char(36) NOT NULL,
@@ -43,7 +43,7 @@ CREATE TABLE packages (
 
 CREATE TABLE cards (
     c_id        char(36) PRIMARY KEY,
-    c_description varchar(2048) NOT NULL,
+    c_description varchar(128) NOT NULL,
 	c_kind		e_kind NOT NULL,
 	c_type		e_type NOT NULL,
 	c_element	e_element NOT NULL,

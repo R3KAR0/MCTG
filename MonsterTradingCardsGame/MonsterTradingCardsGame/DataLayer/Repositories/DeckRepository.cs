@@ -22,7 +22,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
             cmd.Parameters.AddWithValue("d_id", obj.Id.ToString());
             cmd.Parameters.AddWithValue("d_description", obj.Description);
-            cmd.Parameters.AddWithValue("creationtime", new NpgsqlTypes.NpgsqlDateTime(obj.CreationDate));
+            cmd.Parameters.AddWithValue("creationtime", new NpgsqlTypes.NpgsqlDateTime(obj.Timestamp));
             cmd.Parameters.AddWithValue("u_id", obj.UserId);
 
             cmd.Prepare();

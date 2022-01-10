@@ -13,7 +13,15 @@ namespace MonsterTradingCardsGame.Models
         {
             DeckId = deckId;
             CardId = cardId;
-            CreationDate = DateTime.Now;
+            Timestamp = DateTime.Now;
+        }
+
+        [JsonConstructor]
+        public DeckCard(Guid deckId, Guid cardId, DateTime timestamp)
+        {
+            DeckId = deckId;
+            CardId = cardId;
+            Timestamp = timestamp;
         }
 
         [JsonPropertyName("deck")]
@@ -22,6 +30,6 @@ namespace MonsterTradingCardsGame.Models
         public Guid CardId { get; private set; }
 
         [JsonPropertyName("timestamp")]
-        public DateTime CreationDate { get; private set; }
+        public DateTime Timestamp { get; private set; }
     }
 }
