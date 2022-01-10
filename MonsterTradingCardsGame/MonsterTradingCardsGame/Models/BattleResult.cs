@@ -23,12 +23,12 @@ namespace MonsterTradingCardsGame.Models
         }
 
         [JsonConstructor]
-        public BattleResult(Guid user1, Guid user2, Guid? winner, DateTime date)
+        public BattleResult(Guid id, Guid user1, Guid user2, Guid? winner, DateTime battletime)
         {
-            Id = Guid.NewGuid();
+            Id = id;
             User1 = user1;
             User2 = user2;
-            BattleTime = date;
+            BattleTime = battletime;
             if (winner != user1 && winner != user2) throw new InvalidDataException();
             Winner = winner;
         }
@@ -39,10 +39,10 @@ namespace MonsterTradingCardsGame.Models
         public Guid User1 { get; private set; }
         [JsonPropertyName("user2")]
         public Guid User2 { get; private set; }
-        [JsonPropertyName("battletime")]
-        public DateTime BattleTime { get; private set; }
         [JsonPropertyName("winner")]
         public Guid? Winner { get; private set; }
+        [JsonPropertyName("battletime")]
+        public DateTime BattleTime { get; private set; }
 
 
     }

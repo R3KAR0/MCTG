@@ -29,6 +29,7 @@ namespace MonsterTradingCardsGame.Server
             {
                 var user = unit.UserRepository().GetByUsername(username);
                 unit.TokenRepository().Add(new AuthToken(user.Id, validUntil));
+                Log.Information($"Generated and saved token for username={username}!");
             }
             return token;
         }
@@ -116,16 +117,19 @@ namespace MonsterTradingCardsGame.Server
                 }
                 if(userGuid == null || validityOfToken == null)
                 {
+                    Log.Error($"Failed to retreive token from DB for username={splitted[0]}!");
                     return false;
                 }
                 
                 DateTime validUntil = Convert.ToDateTime($"{splitted[1]}.{splitted[2]}.{splitted[3]}");
                 if(!(validityOfToken.Value.ToString() == validUntil.ToString()))
                 {
+                    Log.Error($"Token timestamp for username={splitted[0]} does not match DB record!");
                     return false;
                 }
                 if(DateTime.Now > validityOfToken)
                 {
+                    Log.Error($"Token for username={splitted[0]} expired!");
                     return false;
                 }
                 return true;

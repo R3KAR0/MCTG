@@ -20,33 +20,33 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         }
         public User? Add(User obj)
         {
-            using var cmd = new NpgsqlCommand("INSERT INTO users (u_id, username, u_password, coins, u_description, picture, elo) VALUES ((@u_id), (@username), (@u_password), (@coins), (@u_description), (@picture), (@elo))", npgsqlConnection);
+            try
+            {
+                using var cmd = new NpgsqlCommand("INSERT INTO users (u_id, username, u_password, coins, u_description, elo) VALUES ((@u_id), (@username), (@u_password), (@coins), (@u_description), (@elo))", npgsqlConnection);
 
-            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
-            cmd.Parameters.AddWithValue("username", obj.Username);
-            cmd.Parameters.AddWithValue("u_password", obj.Password);
-            cmd.Parameters.AddWithValue("coins", obj.Coins);
-            cmd.Parameters.AddWithValue("u_description", obj.Description);
-            cmd.Parameters.AddWithValue("elo", obj.Elo);
-            if (obj.Picture == null)
-            {
-                cmd.Parameters.AddWithValue("picture", DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("picture", obj.Picture);
-            }
+                cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
+                cmd.Parameters.AddWithValue("username", obj.Username);
+                cmd.Parameters.AddWithValue("u_password", obj.Password);
+                cmd.Parameters.AddWithValue("coins", obj.Coins);
+                cmd.Parameters.AddWithValue("u_description", obj.Description);
+                cmd.Parameters.AddWithValue("elo", obj.Elo);
 
-            cmd.Prepare();
-            int res =  cmd.ExecuteNonQuery();
-            if(res !=0)
-            {
-                return obj;
+                cmd.Prepare();
+                int res = cmd.ExecuteNonQuery();
+                if (res != 0)
+                {
+                    return obj;
+                }
+                else
+                {
+                    return null;
+                }
             }
-            else
+            catch(Exception)
             {
                 return null;
             }
+
         }
 
         public bool Delete(User obj)
@@ -134,19 +134,11 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public User? Update(User obj)
         {
-            using var cmd = new NpgsqlCommand("UPDATE users SET u_password=@u_password,u_description=@u_description,picture=@picture WHERE u_id=@u_id", npgsqlConnection);
+            using var cmd = new NpgsqlCommand("UPDATE users SET u_password=@u_password,u_description=@u_description WHERE u_id=@u_id", npgsqlConnection);
 
             cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
             cmd.Parameters.AddWithValue("u_password", obj.Password);
             cmd.Parameters.AddWithValue("u_description", obj.Description);
-            if (obj.Picture == null)
-            {
-                cmd.Parameters.AddWithValue("picture", DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("picture", obj.Picture);
-            }
 
             cmd.Prepare();
             int res = cmd.ExecuteNonQuery();
@@ -159,34 +151,6 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 return null;
             }
         }
-
-        //public User? UpdateSelectedDeck(User obj, Guid selectedDeck)
-        //{
-        //    using var cmd = new NpgsqlCommand("UPDATE users SET d_id=@d_id WHERE u_id=@u_id", npgsqlConnection);
-
-        //    cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
-        //    cmd.Parameters.AddWithValue("d_id", selectedDeck);
-        //    if (obj.Picture == null)
-        //    {
-        //        cmd.Parameters.AddWithValue("picture", DBNull.Value);
-        //    }
-        //    else
-        //    {
-        //        cmd.Parameters.AddWithValue("picture", obj.Picture);
-        //    }
-
-        //    cmd.Prepare();
-        //    int res = cmd.ExecuteNonQuery();
-        //    if (res != 0)
-        //    {
-        //        return GetById(obj.Id);
-        //    }
-        //    else
-        //    {
-        //        return null;
-        //    }
-        //}
-
         public bool CheckCredentials(string username, string password)
         {
             using var cmd = new NpgsqlCommand("SELECT u_id FROM users WHERE username=@username AND u_password=@u_password", npgsqlConnection);

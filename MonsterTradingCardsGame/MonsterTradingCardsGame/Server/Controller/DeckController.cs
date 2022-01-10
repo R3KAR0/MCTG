@@ -100,13 +100,18 @@ namespace MonsterTradingCardsGame.Server.Controller
                     
                     var deck = unit.DeckRepository().GetById(cardIdsDTO.DeckId);
                     if (deck==null) throw new InvalidDataException();
-                    if (deck.UserId != userID)
+                    if (deck.User != userID)
                     {
                         throw new NotAuthorizedException();
                     }
+                    
                     foreach (var cardId in cardIdsDTO.CardIds)
                     {
                         var card = unit.CardRepository().GetById(cardId);
+                        if(unit.TradeOfferRepository().GetById(cardId) != null)
+                        {
+                            throw new NotAuthorizedException();
+                        }
                         if (card.Owner != userID)
                         {
                             throw new NotAuthorizedException();
@@ -154,7 +159,7 @@ namespace MonsterTradingCardsGame.Server.Controller
                     if (deckSelectionDTO == null) throw new InvalidDataException(); 
                     var deck = unit.DeckRepository().GetById(deckSelectionDTO.DeckId);
                     if (deck == null) throw new InvalidDataException();
-                    if (deck.UserId != user.Id)
+                    if (deck.User != user.Id)
                     {
                         throw new NotAuthorizedException();
                     }

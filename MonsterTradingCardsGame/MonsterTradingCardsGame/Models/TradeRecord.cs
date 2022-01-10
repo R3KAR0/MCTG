@@ -33,8 +33,12 @@ namespace MonsterTradingCardsGame.Models
         }
 
         [JsonConstructor]
-        public TradeRecord(Guid sellerId, Guid buyerId, Guid sellerCardId, Guid buyerCardId, DateTime timeStamp) : this(sellerId, buyerId, sellerCardId, buyerCardId)
+        public TradeRecord(Guid sellerId, Guid buyerId, Guid sellerCardId, Guid buyerCardId, DateTime timeStamp)
         {
+            SellerId = sellerId;
+            BuyerId = buyerId;
+            SellerCardId = sellerCardId;
+            BuyerCardId = buyerCardId;
             TimeStamp = timeStamp;
         }
     }

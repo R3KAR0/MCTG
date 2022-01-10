@@ -9,12 +9,11 @@ namespace MonsterTradingCardsGame.DataLayer.DTO
 {
     public class UserRepresentation
     {
-        public UserRepresentation(string username, int coins, string profileDescription, byte[]? picture, int battlePower)
+        public UserRepresentation(string username, int coins, string profileDescription, int battlePower)
         {
             Username = username ?? throw new ArgumentNullException(nameof(username));
             Coins = coins;
             ProfileDescription = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
-            Picture = picture;
             BattlePower = battlePower;
         }
 
@@ -26,9 +25,6 @@ namespace MonsterTradingCardsGame.DataLayer.DTO
 
         [JsonPropertyName("description")]
         public string ProfileDescription { get; private set; }
-
-        [JsonPropertyName("picture")]
-        public byte[]? Picture { get; private set; }
 
         [JsonPropertyName("elo")]
         public int BattlePower { get; private set; }

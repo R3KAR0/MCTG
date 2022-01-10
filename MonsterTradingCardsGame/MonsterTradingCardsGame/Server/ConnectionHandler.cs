@@ -90,7 +90,7 @@ namespace MonsterTradingCardsGame.Server
             string? line;
 
             var reader = new StreamReader(client.GetStream(), Encoding.UTF8);
-            //Read Header
+
             int counter = 0;
             while(counter != 1)
             {
@@ -137,22 +137,7 @@ namespace MonsterTradingCardsGame.Server
         }
 
         public static void Response(HTTPResponse res, TcpClient tcpClient)
-        {
-
-            //writing bytes approach
-
-            /*
-            byte[] byteVersion = Encoding.ASCII.GetBytes(res.ToString());
-
-            var stream = tcpClient.GetStream();
-
-            stream.Write(byteVersion, 0, byteVersion.Length);
-            stream.Close();
-
-            return;
-            */
-
-            
+        {      
             StreamWriter writer = new StreamWriter(tcpClient.GetStream(),Encoding.ASCII);
             writer.Write($"{res}");
             try

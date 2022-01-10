@@ -80,7 +80,7 @@ namespace MonsterTradingCardsGame.Models
         public Guid Id { get; private set; }
 
         [JsonPropertyName("owner")]
-        public Guid Owner { get; private set; }
+        public Guid Owner { get; set; }
 
         [JsonPropertyName("package")]
         public Guid Package { get; private set; }
@@ -105,5 +105,6 @@ namespace MonsterTradingCardsGame.Models
 
         [JsonPropertyName("damage")]
         public int Damage { get; private set; }
+
     }
 }

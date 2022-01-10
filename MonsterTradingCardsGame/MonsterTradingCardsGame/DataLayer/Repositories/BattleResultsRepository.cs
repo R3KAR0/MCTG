@@ -22,7 +22,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
             cmd.Parameters.AddWithValue("br_id", obj.Id.ToString());
             cmd.Parameters.AddWithValue("user1", obj.User1.ToString());
-            cmd.Parameters.AddWithValue("user2", obj.User2.ToString()); ;
+            cmd.Parameters.AddWithValue("user2", obj.User2.ToString());
             if (obj.Winner == null)
             {
                 cmd.Parameters.AddWithValue("winner", DBNull.Value);
@@ -87,6 +87,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 while (reader.Read())
                 {
                     results.Add(new BattleResult(
+                            new Guid(reader.GetString(reader.GetOrdinal("br_id"))),
                             new Guid(reader.GetString(reader.GetOrdinal("user1"))),
                             new Guid(reader.GetString(reader.GetOrdinal("user2"))),
                             new Guid(reader.GetString(reader.GetOrdinal("winner"))),
@@ -111,6 +112,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                     {
                         reader.Read();
                         result = new BattleResult(
+                            new Guid(reader.GetString(reader.GetOrdinal("br_id"))),
                             new Guid(reader.GetString(reader.GetOrdinal("user1"))),
                             new Guid(reader.GetString(reader.GetOrdinal("user2"))),
                             new Guid(reader.GetString(reader.GetOrdinal("winner"))),
@@ -138,6 +140,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 while (reader.Read())
                 {
                     results.Add(new BattleResult(
+                        new Guid(reader.GetString(reader.GetOrdinal("br_id"))),
                         new Guid(reader.GetString(reader.GetOrdinal("user1"))),
                         new Guid(reader.GetString(reader.GetOrdinal("user2"))),
                         new Guid(reader.GetString(reader.GetOrdinal("winner"))),

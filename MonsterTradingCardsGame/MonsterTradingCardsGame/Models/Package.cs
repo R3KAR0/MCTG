@@ -35,17 +35,19 @@ namespace MonsterTradingCardsGame.Models
             Cards = CreateCards();
         }
 
-        public Package(Guid iD, Guid buyerID, string description, int price, DateTime creationDate) : this(iD)
+        public Package(Guid id, Guid buyerid, string description, int price, DateTime timestamp)
         {
-            BuyerID = buyerID;
+            Id = id;
+            BuyerID = buyerid;
             Description = description ?? throw new ArgumentNullException(nameof(description));
             Cards = new();
             Price = price;
-            TimeStamp = creationDate;
+            TimeStamp = timestamp;
         }
         [JsonConstructor]
-        public Package(Guid iD, Guid buyerID, string description, List<Card> cards, int price, DateTime timestamp) : this(iD)
+        public Package(Guid id, Guid buyerID, string description, List<Card> cards, int price, DateTime timestamp)
         {
+            Id = id;
             BuyerID = buyerID;
             Description = description ?? throw new ArgumentNullException(nameof(description));
             Cards = cards ?? throw new ArgumentNullException(nameof(cards));

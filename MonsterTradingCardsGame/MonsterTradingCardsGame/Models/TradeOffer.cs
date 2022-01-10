@@ -9,6 +9,16 @@ namespace MonsterTradingCardsGame.Models
 {
     public class TradeOffer
     {
+
+        public TradeOffer(Guid cardId, Guid seller, EType desiredType, int minDamage)
+        {
+            CardId = cardId;
+            SellerId = seller;
+            Timestamp = DateTime.Now;
+            DesiredType = desiredType;
+            MinDamage = minDamage;
+        }
+
         public TradeOffer(Guid cardId, Guid seller, DateTime creationDate, EType desiredType, int minDamage)
         {
             CardId = cardId;
@@ -19,18 +29,17 @@ namespace MonsterTradingCardsGame.Models
         }
 
         [JsonConstructor]
-        public TradeOffer(Guid cardId, Guid seller, Card? cardToTrade, DateTime creationDate, EType desiredType, int minDamage)
+        public TradeOffer(Guid cardid, Guid sellerid, Card? card, DateTime timestamp, EType desiredType, int minDamage)
         {
-            CardId = cardId;
-            SellerId = seller;
-            Card = cardToTrade;
-            Timestamp = creationDate;
+            CardId = cardid;
+            SellerId = sellerid;
+            Card = card;
+            Timestamp = timestamp;
             DesiredType = desiredType;
             MinDamage = minDamage;
         }
-
+        [JsonPropertyName("cardid")]
         public Guid CardId { get; private set; }
-
         [JsonPropertyName("sellerid")]
         public Guid SellerId { get; private set; }
         [JsonPropertyName("card")]

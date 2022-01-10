@@ -1,27 +1,31 @@
-*****************************************
-		Protokoll MCTG
-	Christian Lauer (if21b064)
-GIT-Link: https://github.com/R3KAR0/MCTG
-*****************************************
+									*****************************************
+											Protokoll MCTG
+										Christian Lauer (if21b064)
+									GIT-Link: https://github.com/R3KAR0/MCTG
+									*****************************************
 
-Adaptionen der Angabe und Begründung:
+									 1.0 Adaptionen der Angabe und Begründung:
+
 1) Authentifizierung wurde mit echten AES-verschlüsselten Token umgesetzt, da Klartext Token ohne verschlüsselter Signatur keine Sicherheit bieten würden
 2) GET /localhost/users/{username} wurde auf GET /localhost/users geändert, da ein Authentifizierungstoken mitgegeben werden muss und
 	der username zum Login dient (dieser sollte somit NICHT in einer GET Adresse vorkommen)
    
 Die Herangehensweise für GET /localhost/users/{username} hätte folgendermaßen ausgesehen:
-**************************************
-Herangehensweise für GET /localhost/users/{username} START
-**************************************
+
+										**************************************
+								Herangehensweise für GET /localhost/users/{username} START
+										**************************************
 Da laut Angabe nicht auf ASP.NET zurückgegriffen werden darf, müssen Routen händisch registriert werden.
 Dies wurde mittels Reflections und einem Dictionary, welches die Route+HTTPMethode auf einen Controller und 
 dessen zugehörige Funktion mappt.
 
 Um dynamische Routen zu implementieren, müsste hierbei eine Route nach der Erstellung eines neuen Nutzers eingetragen werden.
 Zudem müsste beim Startup für jeden User-Eintrag in der DB eine Route geladen hinzugefügt werden.
-**************************************
-Herangehensweise für GET /localhost/users/{username} END
-**************************************
+
+										**************************************
+								Herangehensweise für GET /localhost/users/{username} END
+										**************************************
+
  3) Packages werden nicht händisch angelegt sondern bei Anfrage automatisch erstellt, die Wahrscheinlichkeiten für die einzelnen Karten
     werden aus einer Konfigurationsdatei geladen.
  4) Der Einfachheit halber wurde PUT /localhost/users/{username} auf PUT /localhost/users geändert, da hierbei ebenfalls der 
@@ -34,19 +38,47 @@ Herangehensweise für GET /localhost/users/{username} END
 
  6) Beim Trading wurde auch auf die TradeId in der Route verzichtet und über den Body als json-DTO übergeben.
 
+ 7) Statt dem Curl-Skript wurde eine custom-C# Anwendung verwendet, da das automatiserte Testen sowohl mit Insomnia, als auch mit Postman nicht durchführbar war (siehe Lessons Learned)
 
 
-Planung
+													Generelles
 
-Unique Features
-alle regeln aus configs, einen Globalen Logger der in die Console, Files und DB loggen kann, User können mehrere Decks erstellen und eines zum Kämpfen auswählen, mehr typen bei den Fights, TransactionHistory, Win/loses ratio, echte TokenAuthentifizierung
+Von Anfang an geplant war, dass alle Konfigurationen, Spielregeln, sowie Wahrscheinlichkeiten für die Erstellung der Packages werden aus .json-Files geladen. (eines der "mandatory custom features")
+Dies wurde mittels Mapper-Klassen umgesetzt, die mit Hilfe des JsonSerializer, welcher von .NET zur Verfügung gestellten wird, aus den jeweiligen Files deserialisiert werden.
 
+Es wurden mehrere Unique-Features geplant und umgesetzt. Die wichtigsten hierbei:
+Regeln und Konfigurationen werden aus JSON-Files geladen, ein Globalen Logger der in die Console und in ein File loggt wurde implementiert, User können mehrere Decks erstellen
+und verwalten, TransactionHistory, Win/Lose-Ratio + einfacher ELO-Score, echte Token-Authentifizierung, Coins können aufgeladen werden (1x am Tag), Cards können auch gegen Coins
+verkauft werden.
 
-DATABASE
+													   Routen  
+Folgende Routen wurden geplant und umgesetzt:
+/battle HTTPMethod: POST Method: QueueForBattle in BattleController
+/cards HTTPMethod: GET Method: GetUserCards in CardController
+/decks HTTPMethod: GET Method: GetUserDecks in DeckController
+/decks HTTPMethod: POST Method: CreateNewDeck in DeckController
+/decks HTTPMethod: PUT Method: ConfigureUserDeck in DeckController
+/decks/select HTTPMethod: POST Method: SelectDeck in DeckController
+/decks/select HTTPMethod: GET Method: GetSelectDeck in DeckController
+/packages/buy HTTPMethod: POST Method: BuyPackage in PackageController
+/stats HTTPMethod: GET Method: GetUserStats in StatsController
+/stats/scoreboard HTTPMethod: GET Method: GetScoreBoard in StatsController
+/tradingoffers HTTPMethod: GET Method: GetTradeOfferings in TradeController
+/tradingoffers HTTPMethod: POST Method: CreateTradeOffer in TradeController
+/tradingoffers/trade HTTPMethod: POST Method: Trade in TradeController
+/tradingoffers HTTPMethod: DELETE Method: DeleteTradeOffer in TradeController
+/sellingoffers HTTPMethod: GET Method: GetSellOfferings in TradeController
+/users/login HTTPMethod: POST Method: Login in UserController
+/users HTTPMethod: POST Method: Register in UserController
+/users HTTPMethod: GET Method: GetUserInformation in UserController
+/users HTTPMethod: PUT Method: UpdateUserInformation in UserController
+
+													  DATABASE
 
 Herangehensweise:
 1.) PostgreSQL lokal installieren oder als DockerContainer aufsetzen 
-2.)
+2.) ERD wurde händisch entwickelt und anschließend übernommen.
+3.) SQL Skripte für die automatisierte Erstellung der eigentlichen DB und einer Test-DB wurden erstellt.
 
 Entscheidungen:
 PostgreSQL wurde der Einfachheit halber lokal aufgesetzt. Eine Integration über Docker wäre aber mittels des folgenden Dockerfiles möglich:
@@ -164,7 +196,7 @@ CREATE TABLE auth_token(
 
 Vereinfacht zu, da es sich bei den Relationen Stack <-> User und Deck <-> User nicht um Many-To-Many Relationen handelt.
 Cards wurden um die u_id des Besitzers erweitert und Deck als eigener Table angelegt (ein User kann somit mehrere Decks vorbereiten).
-Auf Stored Procedures und Custom Constraints wurde verzichtet.
+Auf Stored Procedures und Custom Constraints (außer CHECK von integern) wurde verzichtet.
  
 **************************************
 		New SQL START
@@ -177,8 +209,24 @@ CREATE TABLE users (
     username    varchar(40) NOT NULL UNIQUE,
     u_password  varchar(64) NOT NULL,
     coins   	integer NOT NULL,
-	u_description varchar(2048),
-	picture 	bytea 
+	u_description varchar(128),
+	elo			integer NOT NULL,
+	CHECK(coins >= 0)
+);
+
+CREATE TABLE decks (
+	d_id 			char(36) PRIMARY KEY,
+	d_description 	char(128) NOT NULL,
+	creationtime 	timestamp NOT NULL,
+	u_id			char(36) NOT NULL,
+	CONSTRAINT fk_deck_user FOREIGN KEY(u_id) REFERENCES users(u_id) 
+);
+
+CREATE TABLE user_selected_deck (
+	u_id	char(36) PRIMARY KEY,
+	d_id 	char(36) NOT NULL,
+	CONSTRAINT fk_user_selected_deck_user FOREIGN KEY(u_id) REFERENCES users(u_id),
+	CONSTRAINT fk_user_selected_deck_deck FOREIGN KEY(d_id) REFERENCES decks(d_id)  
 );
 
 CREATE TYPE e_kind AS ENUM ('spell', 'goblin', 'dragon', 'orc', 'knight', 'kraken', 'elves');
@@ -187,16 +235,17 @@ CREATE TYPE e_element AS ENUM ('fire', 'water', 'neutral');
 
 CREATE TABLE packages (
     p_id        	char(36) PRIMARY KEY,
-    p_description 	varchar(2048) NOT NULL,
+    p_description 	varchar(128) NOT NULL,
 	creationtime 	timestamp NOT NULL,
-	price			int NOT NULL,
+	price			integer NOT NULL,
 	buyer			char(36) NOT NULL,
-	CONSTRAINT fk_packages_user FOREIGN KEY(buyer) REFERENCES users(u_id)
+	CONSTRAINT fk_packages_user FOREIGN KEY(buyer) REFERENCES users(u_id),
+	CHECK(price >= 0)
 );
 
 CREATE TABLE cards (
     c_id        char(36) PRIMARY KEY,
-    c_description varchar(2048) NOT NULL,
+    c_description varchar(128) NOT NULL,
 	c_kind		e_kind NOT NULL,
 	c_type		e_type NOT NULL,
 	c_element	e_element NOT NULL,
@@ -205,15 +254,8 @@ CREATE TABLE cards (
 	u_id	char(36) NOT NULL,
 	p_id 	char(36) NOT NULL,
 	CONSTRAINT fk_card_user FOREIGN KEY(u_id) REFERENCES users(u_id),
-	CONSTRAINT fk_card_package FOREIGN KEY(p_id) REFERENCES packages(p_id) 
-);
-
-CREATE TABLE deck (
-	d_id 			char(36) PRIMARY KEY,
-	s_description 	char(2048) NOT NULL,
-	creationtime 	timestamp NOT NULL,
-	u_id			char(36) NOT NULL,
-	CONSTRAINT fk_stack_user FOREIGN KEY(u_id) REFERENCES users(u_id) 
+	CONSTRAINT fk_card_package FOREIGN KEY(p_id) REFERENCES packages(p_id),
+	CHECK(damage >= 0)
 );
 
 CREATE TABLE battleResults (
@@ -222,33 +264,123 @@ CREATE TABLE battleResults (
 	CONSTRAINT user1_br FOREIGN KEY(user1) REFERENCES users(u_id),
 	user2		char(36) NOT NULL,
 	CONSTRAINT user2_br FOREIGN KEY(user2) REFERENCES users(u_id),
-	winner		char(36) NOT NULL,
+	winner		char(36),
 	CONSTRAINT winner_br FOREIGN KEY(winner) REFERENCES users(u_id),
-	battletime 	timestamp NOT NULL,
-	price		int NOT NULL
+	battletime 	timestamp NOT NULL
 );
 
 CREATE TABLE auth_token(
 	u_id char(36) NOT NULL PRIMARY KEY,
-	CONSTRAINT fk_users_stack FOREIGN KEY(u_id) REFERENCES users(u_id),
+	CONSTRAINT fk_user_token FOREIGN KEY(u_id) REFERENCES users(u_id),
 	valid_until timestamp NOT NULL
 );
 
-CREATE TABLE card_deck(
+CREATE TABLE deck_card(
 	d_id char(36) NOT NULL,
-	CONSTRAINT fk_stack FOREIGN KEY(d_id) REFERENCES deck(d_id),
+	CONSTRAINT fk_stack FOREIGN KEY(d_id) REFERENCES decks(d_id),
 	c_id char(36) NOT NULL,
-	CONSTRAINT fk_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
-	PRIMARY KEY(s_id, c_id)
+	CONSTRAINT fk_deck_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	creationtime timestamp NOT NULL,
+	PRIMARY KEY(d_id, c_id)
 );
+
+CREATE TABLE trading_offer(
+	c_id char(36) PRIMARY KEY,
+	seller char(36) NOT NULL,
+	CONSTRAINT fk_trading_offer_seller FOREIGN KEY(seller) REFERENCES users(u_id),
+	CONSTRAINT fk_trading_offer_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	creationtime timestamp NOT NULL,
+	desiredType e_type NOT NULL,
+	minDamage integer NOT NULL,
+	CHECK(minDamage >= 0)
+);
+
+CREATE TABLE selling_offer(
+	c_id char(36) PRIMARY KEY,
+	seller char(36) NOT NULL,
+	CONSTRAINT fk_selling_offer_seller FOREIGN KEY(seller) REFERENCES users(u_id),
+	CONSTRAINT fk_selling_offer_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
+	creationtime timestamp NOT NULL,
+	price 	integer NOT NULL,
+	CHECK(price >= 0)
+);
+
+CREATE TABLE trading_record(
+	tr_id	char(36) PRIMARY KEY,
+	buyer	char(36) NOT NULL,
+	seller	char(36) NOT NULL,
+	buyer_card_id char(36) NOT NULL,
+	seller_card_id char(36) NOT NULL,
+	creationtime timestamp NOT NULL,
+	CONSTRAINT fk_trading_record_buyer FOREIGN KEY(buyer) REFERENCES users(u_id),
+	CONSTRAINT fk_trading_record_seller FOREIGN KEY(seller) REFERENCES users(u_id),
+	CONSTRAINT fk_trading_record_buyer_card FOREIGN KEY(buyer_card_id) REFERENCES cards(c_id),
+	CONSTRAINT fk_trading_record_seller_card FOREIGN KEY(seller_card_id) REFERENCES cards(c_id)
+);
+
+CREATE TABLE selling_record(
+	sr_id	char(36) PRIMARY KEY,
+	buyer	char(36) NOT NULL,
+	seller	char(36) NOT NULL,
+	seller_card_id char(36) NOT NULL,
+	creationtime timestamp NOT NULL,
+	price 	integer NOT NULL,
+	CHECK(price >= 0),
+	CONSTRAINT fk_selling_record_buyer FOREIGN KEY(buyer) REFERENCES users(u_id),
+	CONSTRAINT fk_selling_record_seller FOREIGN KEY(seller) REFERENCES users(u_id),
+	CONSTRAINT fk_selling_record_seller_card FOREIGN KEY(seller_card_id) REFERENCES cards(c_id)
+);
+
 **************************************
 		New SQL END
 **************************************
 
-
-
-
 Authentification
-Für die Authentifizierung wurde eine eigene Token-Lösung mittels eines symmetrischen Verschlüsselungsverfahrens (AES) implementiert.
-Hierbei wird ein Token erzeugt, der im Klartext als [username].[validUntil] aufgelöst wird. 
+Für die Authentifizierung wurde eine eigene Token-Lösung mittels eines symmetrischen Verschlüsselungsverfahrens (AES) geplant und implementiert.
+Hierbei wird ein Token erzeugt, der im Klartext als [username].[validUntil] aufgelöst wird und somit direkt in den Anfragen zur Bestimmung des Users verwendet werden kann.
+
 Die Zeichenkette die für die Verschlüsselung verwendet wird, wird aus der config.json geladen und sollte nur dem Server bekannt sein.
+
+
+
+													   Aufbau
+Das Programm gliedert sich in Models, Controller, DataTransferObjects, Repositories für die Datenbank + UnitOfWork, allgemeine Serverklassen (HTTP-Klassen, ConnectionHandler, 
+EndPointAttribut für Routen, BattleHandler, Security-HelperKlasse), MapperKlassen und der Program.cs als Einstiegspunkt.
+Hinzu kommt das Projekt für die Unit-Tests (in der gleichen Solution angelegt)
+
+Workflow des Programms:
+Einstieg in Program.cs -> Registrierung des globalen Loggers, Setup der MapperKlassen, Erstellen einer Serverinstanz -> Serverinstanz registriert die Routen mittels Reflections
+(Erkennung der Routen mittels [Endpoint("path","method")]- und [Authentification]-Attribut) nimmt Anfragen entgegen und gibt schiebt eingehende Connections in neue Threads,
+welche von der ConnectionHandler-Klasse bearbeitet werden -> Anfragen werden in HTTP-Messages zerlegt und die zugehörige Route der jeweiligen Controller aufgerufen -> 
+Controller beinhalten dann die Logik.
+
+
+													Unit Testing
+In den Unit-Tests (27 Stück) wurden folgende Aspekte getestet:
+
+	BattleLogik, da hierbei geprüft wurde, ob die Special-Rules (z.B.: KNIGHT ertrinkt gegen WaterSpells) und Strengths/Weaknesses richtig kalkuliert werden. 
+
+	JsonSerialisierung der Models, da hierbei leicht Errors entstehen können, wenn der JsonSerializer den Constructor bzw. die Properties falsch interpretiert oder nicht erkennt.
+
+	Die Security-Helperklasse, da wie oben erwähnt, die erstellen Token auch zur Identifikation der Nutzer verwendet werden und nicht alle String-Längen und Bases (ACES verwendet 
+	Base64Strings) unterstützt werden können.
+
+	Die Konfigurations-MapperKlassen, da diese wichtige Teile der Logik enthalten (Special Rules, Strengths/Weaknesses, DeckSize,...) und eine richtige Deserialisierung 
+	somit essentiell ist.
+
+	HTTPParser und ResponseBuilder, da diese das Rückgrat der Kommunikation bilden.
+
+
+													Entwicklungszeit
+
+08.01.2022  10 Stunden DB Schema, Models, Server (ConnectionHandling), DTOs, Repositories (User, Card, Package, Deck, Token) CRUD Methoden, Konfiguration-Mapper, HTTP-Klassen, Security-HelperKlasse	
+09.01.2022 	18 Stunden Routen, BattleLogik, Konfiguration-Mapper,  Repositories (BattleResults, Selling, Trading) Scoreboard IntegrationTests (Insomnia und Postman), UnitTests, DB Schema Anpassungen, Controller (User, Deck, Card, Package, Battle),Multiple Decks + Management, UserManagement, Controller (User, Cards, Deck, Package)
+10.01.2022	18 Stunden Trading, Selling	IntegrationenTests (eigene Anwendung entwickelt), UnitTests, DB Schema Anpassungen, Controller (Stats, Trade, Selling), Bug-Fixing, Dokumentation erstellen
+
+
+													Lessons-Learned
+.NET 6.0 + C#10 Features erarbeitet
+Auffrischung der Kenntnisse bezüglich Repository-Pattern, UnitOfWork-Pattern, Reflections, Data-Serialization (System.Text.Json, HTTP-Parsing), Threads, Datenbank Modellierung
+Testen mit Inomnia und Postman
+Umgang mit Visual Studio 2022 (neue Autovervollständigungsfeatures etc.)
+Programmieren mit Sockets in C#, Unit-Tests mit NUnit und ADO .NET mit Postgresql (npgsql)

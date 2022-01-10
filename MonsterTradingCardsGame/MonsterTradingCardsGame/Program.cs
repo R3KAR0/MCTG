@@ -22,7 +22,7 @@ namespace MonsterTradingCardsGame
         {
             if(configMapper == null)
             {
-                Setup();
+                SetupMapper();
             }
             return configMapper;          
         }
@@ -31,7 +31,7 @@ namespace MonsterTradingCardsGame
         {
             if (rulesMapper == null)
             {
-                Setup();
+                SetupMapper();
             }
             return rulesMapper;
         }
@@ -40,7 +40,7 @@ namespace MonsterTradingCardsGame
         {
             if (packageCreationMapper == null)
             {
-                Setup();
+                SetupMapper();
             }
             return packageCreationMapper;
         }
@@ -51,26 +51,30 @@ namespace MonsterTradingCardsGame
             //    .ReadFrom.Configuration(configuration)
             //    .CreateLogger();
 
-            Setup();
-            NpgsqlConnection.GlobalTypeMapper.UseJsonNet();
+            //Setup();
 
-            Server.Server GameServer = Server.Server.Instance;
-            GameServer.Run();
-        }
-
-        private static void Setup()
-        {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
                 .WriteTo.File("..\\Logs\\Log.txt")
                 .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Debug)
                 .CreateLogger();
 
-            using (var sr = new StreamReader("..\\..\\..\\config.json"))
+            SetupMapper();
+
+            NpgsqlConnection.GlobalTypeMapper.UseJsonNet();
+
+            Server.Server GameServer = Server.Server.Instance;
+            GameServer.Run();
+        }
+
+        private static void SetupMapper(string configMapperConfig = "..\\..\\..\\..\\config.json", string packageCreationMapperConfig = "..\\..\\..\\..\\PackageCreationConfig.json", string rulesMapperConfig = "..\\..\\..\\..\\rules.json")
+        {
+            using (var sr = new StreamReader(configMapperConfig))
             {
                 try
                 {
-                    configMapper = JsonSerializer.Deserialize<ConfigMapper>(sr.ReadToEnd());                 
+                    configMapper = JsonSerializer.Deserialize<ConfigMapper>(sr.ReadToEnd());
+                    Log.Information("ConfigMapper loaded successfully!");
                 }
                 catch (Exception)
                 {
@@ -79,11 +83,12 @@ namespace MonsterTradingCardsGame
                 }
             }
 
-            using (var sr = new StreamReader("..\\..\\..\\PackageCreationConfig.json"))
+            using (var sr = new StreamReader(packageCreationMapperConfig))
             {
                 try
                 {
                     packageCreationMapper = JsonSerializer.Deserialize<PackageCreationMapper>(sr.ReadToEnd());
+                    Log.Information("PackageCreationMapper loaded successfully!");
                 }
                 catch (Exception)
                 {
@@ -91,11 +96,57 @@ namespace MonsterTradingCardsGame
                 }
             }
 
-            using (var sr = new StreamReader("..\\..\\..\\rules.json"))
+            using (var sr = new StreamReader(rulesMapperConfig))
             {
                 try
                 {
                     rulesMapper = JsonSerializer.Deserialize<RulesMapper>(sr.ReadToEnd());
+                    Log.Information("RulesMapper loaded successfully!");
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+        }
+
+
+        public static void TestSetup(string configMapperConfig, string packageCreationMapperConfig, string rulesMapperConfig)
+        {
+            using (var sr = new StreamReader(configMapperConfig))
+            {
+                try
+                {
+                    configMapper = JsonSerializer.Deserialize<ConfigMapper>(sr.ReadToEnd());
+                    Log.Information("ConfigMapper loaded successfully!");
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+
+            using (var sr = new StreamReader(packageCreationMapperConfig))
+            {
+                try
+                {
+                    packageCreationMapper = JsonSerializer.Deserialize<PackageCreationMapper>(sr.ReadToEnd());
+                    Log.Information("PackageCreationMapper loaded successfully!");
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+
+            using (var sr = new StreamReader(rulesMapperConfig))
+            {
+                try
+                {
+                    rulesMapper = JsonSerializer.Deserialize<RulesMapper>(sr.ReadToEnd());
+                    Log.Information("RulesMapper loaded successfully!");
                 }
                 catch (Exception)
                 {

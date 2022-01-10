@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.Models
 {
-    internal class BuyRecord
+    public class BuyRecord
     {
         [JsonPropertyName("sellerid")]
         public Guid SellerId { get; private set; }
@@ -15,28 +15,28 @@ namespace MonsterTradingCardsGame.Models
         public Guid BuyerId { get; private set; }
 
         [JsonPropertyName("sellerCard")]
-        public Guid sellerCardId { get; private set; }
+        public Guid SellerCard { get; private set; }
         [JsonPropertyName("amount")]
         public int Amount { get; private set; }
 
         [JsonPropertyName("timestamp")]
         public DateTime TimeStamp { get; private set; }
 
-        public BuyRecord(Guid sellerId, Guid buyerId, Guid sellerCardId, int amount)
+        public BuyRecord(Guid sellerId, Guid buyerId, Guid sellerCard, int amount)
         {
             SellerId = sellerId;
             BuyerId = buyerId;
-            this.sellerCardId = sellerCardId;
+            SellerCard = sellerCard;
             Amount = amount;
             TimeStamp = DateTime.Now;
         }
 
         [JsonConstructor]
-        public BuyRecord(Guid sellerId, Guid buyerId, Guid sellerCardId, int amount, DateTime timestamp)
+        public BuyRecord(Guid sellerid, Guid buyerid, Guid sellerCard, int amount, DateTime timestamp)
         {
-            SellerId = sellerId;
-            BuyerId = buyerId;
-            this.sellerCardId = sellerCardId;
+            SellerId = sellerid;
+            BuyerId = buyerid;
+            SellerCard = sellerCard;
             Amount = amount;
             TimeStamp = timestamp;
         }

@@ -15,7 +15,6 @@ namespace MonsterTradingCardsGame.Models
             Deck = new List<Card>();
             Stack = new List<Card>();
             Description = Program.GetConfigMapper().UserDescription;
-            Picture = null;
             Elo = 100;
         }
 
@@ -27,22 +26,10 @@ namespace MonsterTradingCardsGame.Models
             Coins = coins;
             Description = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
             Elo = elo;
-
-        }
-
-        public User(string username, Guid iD, string password, int coins, string profileDescription, byte[]? picture, int elo)
-        {
-            Username = username ?? throw new ArgumentNullException(nameof(username));
-            Id = iD;
-            Password = password ?? throw new ArgumentNullException(nameof(password));
-            Coins = coins;
-            Description = profileDescription ?? throw new ArgumentNullException(nameof(profileDescription));
-            Picture = picture;
-            Elo = elo;
         }
 
         [JsonConstructor]
-        public User(string username, Guid id, string password, int coins, List<Card> deck, List<Card> stack, string description, byte[]? picture, int elo)
+        public User(string username, Guid id, string password, int coins, List<Card> deck, List<Card> stack, string description, int elo)
         {
             Username = username ?? throw new ArgumentNullException(nameof(username));
             Id = id;
@@ -51,7 +38,6 @@ namespace MonsterTradingCardsGame.Models
             Deck = deck ?? throw new ArgumentNullException(nameof(deck));
             Stack = stack ?? throw new ArgumentNullException(nameof(stack));
             Description = description ?? throw new ArgumentNullException(nameof(description));
-            Picture = picture;
             Elo = elo;
         }
 
@@ -61,7 +47,7 @@ namespace MonsterTradingCardsGame.Models
         [JsonPropertyName("id")]
         public Guid Id { get; private set; }
 
-        //[JsonPropertyName("password")] should not be transfered!
+        [JsonPropertyName("password")]
         public string Password { get; private set; }
 
         [JsonPropertyName("coins")]
@@ -75,9 +61,6 @@ namespace MonsterTradingCardsGame.Models
 
         [JsonPropertyName("description")]
         public string Description { get; private set; }
-
-        [JsonPropertyName("picture")]
-        public byte[]? Picture { get; private set; }
 
         [JsonPropertyName("elo")]
         public int Elo { get; private set; }    

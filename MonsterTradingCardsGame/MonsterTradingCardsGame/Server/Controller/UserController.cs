@@ -94,7 +94,7 @@ namespace MonsterTradingCardsGame.Server.Controller
         {
             User? user = SecurityHelper.GetUserFromToken(token);
             if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
-            return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.Description, user.Picture, user.Elo)), System.Net.HttpStatusCode.OK);
+            return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.Description, user.Elo)), System.Net.HttpStatusCode.OK);
         }
 
         [Authentification]
@@ -118,17 +118,12 @@ namespace MonsterTradingCardsGame.Server.Controller
                 {
                     userUpdate.NewPassword = user.Password;
                 }
-                
-                if(userUpdate.NewPicture == null)
-                {
-                    userUpdate.NewPicture = user.Picture;
-                }
 
                 using (var uow = new UnitOfWork())
                 {
-                    user = uow.UserRepository().Update(new User(user.Username,user.Id, userUpdate.NewPassword,user.Coins, userUpdate.NewProfileDescription, userUpdate.NewPicture, user.Elo));
+                    user = uow.UserRepository().Update(new User(user.Username,user.Id, userUpdate.NewPassword,user.Coins, userUpdate.NewProfileDescription, user.Elo));
                 }
-                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.Description, user.Picture, user.Elo)), System.Net.HttpStatusCode.OK);
+                    return new JsonResponseDTO(JsonSerializer.Serialize(new UserRepresentation(user.Username,user.Coins,user.Description, user.Elo)), System.Net.HttpStatusCode.OK);
             }
             catch (Exception)
             {

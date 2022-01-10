@@ -164,5 +164,24 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
                 return null;
             }
         }
+
+        public Card? UpdateOwner(Card obj)
+        {
+            using var cmd = new NpgsqlCommand("UPDATE cards SET u_id=@u_id WHERE c_id=@c_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("c_id", obj.Id.ToString());
+            cmd.Parameters.AddWithValue("u_id", obj.Owner);
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+            if (res != 0)
+            {
+                return GetById(obj.Id);
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

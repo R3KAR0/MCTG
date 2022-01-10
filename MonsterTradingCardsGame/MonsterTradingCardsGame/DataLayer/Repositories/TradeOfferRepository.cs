@@ -41,18 +41,26 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public bool Delete(TradeOffer obj)
         {
-            using var cmd = new NpgsqlCommand("DELETE FROM trading_offer WHERE c_id=@c_id", npgsqlConnection);
-
-            cmd.Parameters.AddWithValue("c_id", obj.CardId.ToString());
-
-            cmd.Prepare();
-            int res = cmd.ExecuteNonQuery();
-
-            if (res != 0)
+            try
             {
-                return true;
+                using var cmd = new NpgsqlCommand("DELETE FROM trading_offer WHERE c_id=@c_id", npgsqlConnection);
+
+                cmd.Parameters.AddWithValue("c_id", obj.CardId.ToString());
+
+                cmd.Prepare();
+                int res = cmd.ExecuteNonQuery();
+
+                if (res != 0)
+                {
+                    return true;
+                }
+                return false;
             }
-            return false;
+            catch (NullReferenceException)
+            {
+                return false;
+            }
+
         }
 
         public bool Delete(Guid id)

@@ -1,7 +1,4 @@
-COMMENT ON DATABASE "MCTG"
-    IS 'MonsterCardTradingGame';
-	
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     u_id        char(36) PRIMARY KEY,
     username    varchar(40) NOT NULL UNIQUE,
     u_password  varchar(64) NOT NULL,
@@ -11,7 +8,7 @@ CREATE TABLE users (
 	CHECK(coins >= 0)
 );
 
-CREATE TABLE decks (
+CREATE TABLE IF NOT EXISTS decks (
 	d_id 			char(36) PRIMARY KEY,
 	d_description 	char(128) NOT NULL,
 	creationtime 	timestamp NOT NULL,
@@ -19,18 +16,14 @@ CREATE TABLE decks (
 	CONSTRAINT fk_deck_user FOREIGN KEY(u_id) REFERENCES users(u_id) 
 );
 
-CREATE TABLE user_selected_deck (
+CREATE TABLE IF NOT EXISTS user_selected_deck (
 	u_id	char(36) PRIMARY KEY,
 	d_id 	char(36) NOT NULL,
 	CONSTRAINT fk_user_selected_deck_user FOREIGN KEY(u_id) REFERENCES users(u_id),
 	CONSTRAINT fk_user_selected_deck_deck FOREIGN KEY(d_id) REFERENCES decks(d_id)  
 );
 
-CREATE TYPE e_kind AS ENUM ('spell', 'goblin', 'dragon', 'orc', 'knight', 'kraken', 'elves');
-CREATE TYPE e_type AS ENUM ('spell', 'monster');
-CREATE TYPE e_element AS ENUM ('fire', 'water', 'neutral');
-
-CREATE TABLE packages (
+CREATE TABLE IF NOT EXISTS packages (
     p_id        	char(36) PRIMARY KEY,
     p_description 	varchar(128) NOT NULL,
 	creationtime 	timestamp NOT NULL,
@@ -40,7 +33,7 @@ CREATE TABLE packages (
 	CHECK(price >= 0)
 );
 
-CREATE TABLE cards (
+CREATE TABLE IF NOT EXISTS cards (
     c_id        char(36) PRIMARY KEY,
     c_description varchar(128) NOT NULL,
 	c_kind		e_kind NOT NULL,
@@ -55,7 +48,7 @@ CREATE TABLE cards (
 	CHECK(damage >= 0)
 );
 
-CREATE TABLE battleResults (
+CREATE TABLE IF NOT EXISTS battleResults (
     br_id       char(36) PRIMARY KEY,
     user1		char(36) NOT NULL,
 	CONSTRAINT user1_br FOREIGN KEY(user1) REFERENCES users(u_id),
@@ -66,13 +59,13 @@ CREATE TABLE battleResults (
 	battletime 	timestamp NOT NULL
 );
 
-CREATE TABLE auth_token(
+CREATE TABLE IF NOT EXISTS auth_token(
 	u_id char(36) NOT NULL PRIMARY KEY,
 	CONSTRAINT fk_user_token FOREIGN KEY(u_id) REFERENCES users(u_id),
 	valid_until timestamp NOT NULL
 );
 
-CREATE TABLE deck_card(
+CREATE TABLE IF NOT EXISTS deck_card(
 	d_id char(36) NOT NULL,
 	CONSTRAINT fk_stack FOREIGN KEY(d_id) REFERENCES decks(d_id),
 	c_id char(36) NOT NULL,
@@ -81,7 +74,7 @@ CREATE TABLE deck_card(
 	PRIMARY KEY(d_id, c_id)
 );
 
-CREATE TABLE trading_offer(
+CREATE TABLE IF NOT EXISTS trading_offer(
 	c_id char(36) PRIMARY KEY,
 	seller char(36) NOT NULL,
 	CONSTRAINT fk_trading_offer_seller FOREIGN KEY(seller) REFERENCES users(u_id),
@@ -92,7 +85,7 @@ CREATE TABLE trading_offer(
 	CHECK(minDamage >= 0)
 );
 
-CREATE TABLE selling_offer(
+CREATE TABLE IF NOT EXISTS selling_offer(
 	c_id char(36) PRIMARY KEY,
 	seller char(36) NOT NULL,
 	CONSTRAINT fk_selling_offer_seller FOREIGN KEY(seller) REFERENCES users(u_id),
@@ -102,7 +95,7 @@ CREATE TABLE selling_offer(
 	CHECK(price >= 0)
 );
 
-CREATE TABLE trading_record(
+CREATE TABLE IF NOT EXISTS trading_record(
 	tr_id	char(36) PRIMARY KEY,
 	buyer	char(36) NOT NULL,
 	seller	char(36) NOT NULL,
@@ -115,7 +108,7 @@ CREATE TABLE trading_record(
 	CONSTRAINT fk_trading_record_seller_card FOREIGN KEY(seller_card_id) REFERENCES cards(c_id)
 );
 
-CREATE TABLE selling_record(
+CREATE TABLE IF NOT EXISTS selling_record(
 	sr_id	char(36) PRIMARY KEY,
 	buyer	char(36) NOT NULL,
 	seller	char(36) NOT NULL,

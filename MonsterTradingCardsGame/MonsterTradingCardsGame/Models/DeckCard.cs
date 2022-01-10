@@ -17,10 +17,10 @@ namespace MonsterTradingCardsGame.Models
         }
 
         [JsonConstructor]
-        public DeckCard(Guid deckId, Guid cardId, DateTime timestamp)
+        public DeckCard(Guid deck, Guid card, DateTime timestamp)
         {
-            DeckId = deckId;
-            CardId = cardId;
+            DeckId = deck;
+            CardId = card;
             Timestamp = timestamp;
         }
 
