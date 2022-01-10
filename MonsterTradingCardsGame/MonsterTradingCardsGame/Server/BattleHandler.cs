@@ -45,6 +45,7 @@ namespace MonsterTradingCardsGame.Server
                     Thread.Sleep(1000);
                     log = pollingDict[userId];
                 }
+                pollingDict.Remove(userId);
                 return log;
             }
 

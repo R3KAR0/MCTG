@@ -103,6 +103,37 @@ namespace MonsterTradingCardsGame.Server.Controller
         }
 
         [Authentification]
+        [EndPointAttribute("/users/coins", "POST")]
+        public static JsonResponseDTO GetCoins(string token, string content)
+        {
+            GetCoinsDTO? dto;
+            try
+            {
+                dto = JsonSerializer.Deserialize<GetCoinsDTO>(content);
+                if (dto == null || dto.Amount<0) throw new InvalidDataException();
+
+                User? user = SecurityHelper.GetUserFromToken(token);
+                if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+                User? res;
+                using (var ouw = new UnitOfWork())
+                {
+                     res = ouw.UserRepository().UpdateCoins(user, dto.Amount);
+                }
+                if(res != null)
+                {
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.Accepted);
+                }
+                return new JsonResponseDTO("", System.Net.HttpStatusCode.InternalServerError);
+            }
+            catch (Exception)
+            {
+                return new JsonResponseDTO("", System.Net.HttpStatusCode.InternalServerError);
+            }
+
+        }
+
+        [Authentification]
         [EndPointAttribute("/users", "PUT")]
         public static JsonResponseDTO UpdateUserInformation(string token, string content)
         {

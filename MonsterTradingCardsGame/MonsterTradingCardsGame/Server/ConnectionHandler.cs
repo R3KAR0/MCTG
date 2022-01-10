@@ -42,18 +42,16 @@ namespace MonsterTradingCardsGame.Server
                 if(Server.AuthentificationMethods.Contains(method))
                 {
                     auth = SecurityHelper.VerifyToken(receivedMessage.Headers["Authorization"]);
+                    if (!auth)
+                    {
+                        throw new NotAuthorizedException();
+                    }
                     res = Server.EndPointPaths[pathMethod].Item2.Invoke(Server.EndPointPaths[pathMethod].Item1, new object[] { receivedMessage.Headers["Authorization"], receivedMessage.Body });
                 }
                 else
                 {
                     res = Server.EndPointPaths[pathMethod].Item2.Invoke(Server.EndPointPaths[pathMethod].Item1, new object[] { receivedMessage.Body });
                 }
-                if(!auth)
-                {
-                    throw new NotAuthorizedException();
-                }
-
-               
 
                 if (res == null) throw new InvalidDataException();
                 var JsonDTO = res as JsonResponseDTO;
@@ -137,11 +135,12 @@ namespace MonsterTradingCardsGame.Server
         }
 
         public static void Response(HTTPResponse res, TcpClient tcpClient)
-        {      
-            StreamWriter writer = new StreamWriter(tcpClient.GetStream(),Encoding.ASCII);
-            writer.Write($"{res}");
+        {
             try
             {
+                StreamWriter writer = new StreamWriter(tcpClient.GetStream(),Encoding.ASCII);
+                writer.Write($"{res}");
+
                 writer.Flush();
                 writer.Close();
                 tcpClient.Close();

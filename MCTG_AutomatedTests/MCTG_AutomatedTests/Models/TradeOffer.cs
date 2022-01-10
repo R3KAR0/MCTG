@@ -7,51 +7,54 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.Models
 {
-    public class SellingOffer
+    public class TradeOffer
     {
-        public SellingOffer(Guid cardId, Guid seller, DateTime creationDate, int price)
-        {
-            CardId = cardId;
-            SellerId = seller;
-            Timestamp = creationDate;
-            Price = price;
-        }
 
-        public SellingOffer(Guid cardId, Guid seller, int price)
+        public TradeOffer(Guid cardId, Guid seller, EType desiredType, int minDamage)
         {
             CardId = cardId;
             SellerId = seller;
             Timestamp = DateTime.Now;
-            Price = price;
+            DesiredType = desiredType;
+            MinDamage = minDamage;
+        }
 
+        public TradeOffer(Guid cardId, Guid seller, DateTime creationDate, EType desiredType, int minDamage)
+        {
+            CardId = cardId;
+            SellerId = seller;
+            Timestamp = creationDate;
+            DesiredType = desiredType;
+            MinDamage = minDamage;
         }
 
         [JsonConstructor]
-        public SellingOffer(Guid cardid, Guid sellerid, Card? card, DateTime timestamp, int price)
+        public TradeOffer(Guid cardid, Guid sellerid, Card? card, DateTime timestamp, EType desiredType, int minDamage)
         {
             CardId = cardid;
             SellerId = sellerid;
             Card = card;
             Timestamp = timestamp;
-            Price = price;
+            DesiredType = desiredType;
+            MinDamage = minDamage;
         }
-
         [JsonPropertyName("cardid")]
         public Guid CardId { get; private set; }
-
         [JsonPropertyName("sellerid")]
         public Guid SellerId { get; private set; }
         [JsonPropertyName("card")]
         public Card? Card { get; set; }
         [JsonPropertyName("timestamp")]
         public DateTime Timestamp { get; private set; }
-        [JsonPropertyName("price")]
-        public int Price { get; private set; }
+        [JsonPropertyName("desiredType")]
+        public EType DesiredType { get; set; }
+        [JsonPropertyName("minDamage")]
+        public int MinDamage { get; private set; }
 
-        public bool SetPrice(int val)
+        public bool SetMinDamage(int val)
         {
-            if (val < 0) return false;
-            Price = val;
+            if(val < 0) return false;
+            MinDamage = val;
             return true;
         }
     }

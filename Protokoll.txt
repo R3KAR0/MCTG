@@ -38,7 +38,7 @@ Zudem müsste beim Startup für jeden User-Eintrag in der DB eine Route geladen 
 
  6) Beim Trading wurde auch auf die TradeId in der Route verzichtet und über den Body als json-DTO übergeben.
 
- 7) Statt dem Curl-Skript wurde eine custom-C# Anwendung verwendet, da das automatiserte Testen sowohl mit Insomnia, als auch mit Postman nicht durchführbar war (siehe Lessons Learned)
+ 7) Statt dem Curl-Skript wurde für die Integration-Tests eine C#-Anwendung verwendet, da das automatiserte Testen sowohl mit Insomnia, als auch mit Postman nicht durchführbar war (siehe Lessons Learned)
 
 
 													Generelles
@@ -48,8 +48,7 @@ Dies wurde mittels Mapper-Klassen umgesetzt, die mit Hilfe des JsonSerializer, w
 
 Es wurden mehrere Unique-Features geplant und umgesetzt. Die wichtigsten hierbei:
 Regeln und Konfigurationen werden aus JSON-Files geladen, ein Globalen Logger der in die Console und in ein File loggt wurde implementiert, User können mehrere Decks erstellen
-und verwalten, TransactionHistory, Win/Lose-Ratio + einfacher ELO-Score, echte Token-Authentifizierung, Coins können aufgeladen werden (1x am Tag), Cards können auch gegen Coins
-verkauft werden.
+und verwalten, Win/Lose-Ratio + einfacher ELO-Score, echte Token-Authentifizierung, sowie die Möglichkeit die Coins der User zu updaten und Cards für Coins zu verkaufen.
 
 													   Routen  
 Folgende Routen wurden geplant und umgesetzt:
@@ -304,33 +303,6 @@ CREATE TABLE selling_offer(
 	price 	integer NOT NULL,
 	CHECK(price >= 0)
 );
-
-CREATE TABLE trading_record(
-	tr_id	char(36) PRIMARY KEY,
-	buyer	char(36) NOT NULL,
-	seller	char(36) NOT NULL,
-	buyer_card_id char(36) NOT NULL,
-	seller_card_id char(36) NOT NULL,
-	creationtime timestamp NOT NULL,
-	CONSTRAINT fk_trading_record_buyer FOREIGN KEY(buyer) REFERENCES users(u_id),
-	CONSTRAINT fk_trading_record_seller FOREIGN KEY(seller) REFERENCES users(u_id),
-	CONSTRAINT fk_trading_record_buyer_card FOREIGN KEY(buyer_card_id) REFERENCES cards(c_id),
-	CONSTRAINT fk_trading_record_seller_card FOREIGN KEY(seller_card_id) REFERENCES cards(c_id)
-);
-
-CREATE TABLE selling_record(
-	sr_id	char(36) PRIMARY KEY,
-	buyer	char(36) NOT NULL,
-	seller	char(36) NOT NULL,
-	seller_card_id char(36) NOT NULL,
-	creationtime timestamp NOT NULL,
-	price 	integer NOT NULL,
-	CHECK(price >= 0),
-	CONSTRAINT fk_selling_record_buyer FOREIGN KEY(buyer) REFERENCES users(u_id),
-	CONSTRAINT fk_selling_record_seller FOREIGN KEY(seller) REFERENCES users(u_id),
-	CONSTRAINT fk_selling_record_seller_card FOREIGN KEY(seller_card_id) REFERENCES cards(c_id)
-);
-
 **************************************
 		New SQL END
 **************************************
@@ -374,8 +346,8 @@ In den Unit-Tests (27 Stück) wurden folgende Aspekte getestet:
 													Entwicklungszeit
 
 08.01.2022  10 Stunden DB Schema, Models, Server (ConnectionHandling), DTOs, Repositories (User, Card, Package, Deck, Token) CRUD Methoden, Konfiguration-Mapper, HTTP-Klassen, Security-HelperKlasse	
-09.01.2022 	18 Stunden Routen, BattleLogik, Konfiguration-Mapper,  Repositories (BattleResults, Selling, Trading) Scoreboard IntegrationTests (Insomnia und Postman), UnitTests, DB Schema Anpassungen, Controller (User, Deck, Card, Package, Battle),Multiple Decks + Management, UserManagement, Controller (User, Cards, Deck, Package)
-10.01.2022	18 Stunden Trading, Selling	IntegrationenTests (eigene Anwendung entwickelt), UnitTests, DB Schema Anpassungen, Controller (Stats, Trade, Selling), Bug-Fixing, Dokumentation erstellen
+09.01.2022 	16 Stunden Routen, BattleLogik, Konfiguration-Mapper,  Repositories (BattleResults, Selling, Trading) Scoreboard IntegrationTests (Insomnia und Postman), UnitTests, DB Schema Anpassungen, Controller (User, Deck, Card, Package, Battle),Multiple Decks + Management, UserManagement, Controller (User, Cards, Deck, Package)
+10.01.2022	15 Stunden Trading, Selling	IntegrationenTests (eigene Anwendung entwickelt), UnitTests, DB Schema Anpassungen, Controller (Stats, Trade, Selling), Bug-Fixing, Dokumentation erstellen
 
 
 													Lessons-Learned

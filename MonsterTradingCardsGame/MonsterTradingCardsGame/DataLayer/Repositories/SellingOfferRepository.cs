@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
-    internal class SellingOfferRepository : IRepository<SellingOffer>
+    public class SellingOfferRepository : IRepository<SellingOffer>
     {
         NpgsqlConnection npgsqlConnection;
         public SellingOfferRepository(NpgsqlConnection npgsqlConnection)
@@ -22,7 +22,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             cmd.Parameters.AddWithValue("c_id", obj.CardId.ToString());
             cmd.Parameters.AddWithValue("seller", obj.SellerId.ToString());
             cmd.Parameters.AddWithValue("creationtime", new NpgsqlTypes.NpgsqlDateTime(obj.Timestamp));
-            cmd.Parameters.AddWithValue("desiredType", obj.Price);
+            cmd.Parameters.AddWithValue("price", obj.Price);
 
             cmd.Prepare();
             int res = cmd.ExecuteNonQuery();

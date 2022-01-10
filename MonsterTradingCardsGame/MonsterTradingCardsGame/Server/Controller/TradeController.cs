@@ -93,12 +93,13 @@ namespace MonsterTradingCardsGame.Server.Controller
                     trade = JsonSerializer.Deserialize<TradingDTO>(content);
                     if (trade == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
 
-                    var card = unit.CardRepository().GetById(trade.BuyerId);
-                    if (card == null) throw new Exception();
-                    if (card.Owner.ToString() != user.Id.ToString() || trade.BuyerId == trade.TradeId) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
-
                     var buyerCard = unit.CardRepository().GetById(trade.BuyerId);
+                    if (buyerCard == null) throw new Exception();
                     var tradeCard = unit.CardRepository().GetById(trade.TradeId);
+                    if (tradeCard == null) throw new Exception();
+
+                    if (buyerCard.Owner.ToString() != user.Id.ToString() || trade.BuyerId == trade.TradeId || user.Id.ToString() == tradeCard.Owner.ToString()) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
                     var tradeOffer = unit.TradeOfferRepository().GetById(trade.TradeId);
 
                     if(buyerCard == null || tradeCard == null || tradeOffer == null)
@@ -185,14 +186,94 @@ namespace MonsterTradingCardsGame.Server.Controller
             {
                 try
                 {
-                    var results = unit.StatisticRepository().GetBattleResultsByUserId(user.Id);
-                    var wins = results.Where(result => result.Winner == user.Id).ToList().Count;
-                    var loses = results.Where(result => result.Winner != user.Id).ToList().Count;
-                    var draws = results.Where(result => result.Winner == null).ToList().Count;
+                    var results = unit.SellingOfferRepository().GetAll();
+                    if (results == null) throw new InvalidDataException();
+                    return new JsonResponseDTO(JsonSerializer.Serialize(new SellingOffersDTO(results)), System.Net.HttpStatusCode.OK);
 
-                    var elo = user.Elo;
-                    return new JsonResponseDTO(JsonSerializer.Serialize(new BattleResultsRepresentation(wins, loses, draws, elo)), System.Net.HttpStatusCode.OK);
+                }
+                catch (Exception)
+                {
+                    unit.Rollback();
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+        }
 
+
+
+        [Authentification]
+        [EndPointAttribute("/sellingoffers", "POST")]
+        public static JsonResponseDTO CreateSellingOffer(string token, string content)
+        {
+            CreateSellingOfferDTO? sellingOffer;
+            var user = SecurityHelper.GetUserFromToken(token);
+            if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+            using (UnitOfWork unit = new UnitOfWork())
+            {
+                try
+                {
+                    sellingOffer = JsonSerializer.Deserialize<CreateSellingOfferDTO>(content);
+                    if (sellingOffer == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+
+                    var card = unit.CardRepository().GetById(sellingOffer.CardId);
+                    if (card == null) throw new InvalidDataException();
+                    if (card.Owner.ToString() != user.Id.ToString()) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+                    var decksOfCard = unit.DeckCardRepository().GetByCardId(sellingOffer.CardId).ToList();
+                    if (decksOfCard.Count > 0)
+                    {
+                        foreach (var deckEntry in decksOfCard)
+                        {
+                            unit.DeckCardRepository().Delete(deckEntry);
+                        }
+                    }
+                    var results = unit.SellingOfferRepository().Add(new Models.SellingOffer(sellingOffer.CardId, user.Id, sellingOffer.Price));
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.Accepted);
+                }
+                catch (Exception)
+                {
+                    unit.Rollback();
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+        }
+
+
+        [Authentification]
+        [EndPointAttribute("/sellingoffers/buy", "POST")]
+        public static JsonResponseDTO BuySellingOffer(string token, string content)
+        {
+            BuySellingOfferDTO? buyDTO;
+            var user = SecurityHelper.GetUserFromToken(token);
+            if (user == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+
+            using (UnitOfWork unit = new UnitOfWork())
+            {
+                try
+                {
+                    buyDTO = JsonSerializer.Deserialize<BuySellingOfferDTO>(content);
+                    if (buyDTO == null) return new JsonResponseDTO("", System.Net.HttpStatusCode.BadRequest);
+
+                    var card = unit.CardRepository().GetById(buyDTO.CardId);
+                    if (card == null) throw new InvalidDataException();
+                    if (card.Owner.ToString() == user.Id.ToString()) return new JsonResponseDTO("", System.Net.HttpStatusCode.Forbidden);
+                    var test = unit.SellingOfferRepository().GetAll().ToList();
+                    var selling = unit.SellingOfferRepository().GetById(buyDTO.CardId);
+                    if (selling == null) throw new InvalidDataException();
+
+                    if (user.Coins-selling.Price < 0)
+                    {
+                        return new JsonResponseDTO("", System.Net.HttpStatusCode.PaymentRequired);
+                    }
+
+                    var resUser = unit.UserRepository().UpdateCoins(user, selling.Price * -1);
+                    card.Owner = user.Id;
+                    var resCard = unit.CardRepository().UpdateOwner(card);
+
+                    if (resUser == null || resCard == null) throw new Exception();
+      
+                    return new JsonResponseDTO("", System.Net.HttpStatusCode.Accepted);
                 }
                 catch (Exception)
                 {

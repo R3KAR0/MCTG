@@ -149,7 +149,7 @@ namespace MonsterTradingCardsGame.Server.Controller
 
         [Authentification]
         [EndPointAttribute("/decks/select", "POST")]
-        public static JsonResponseDTO SelectDeck(string token, string content)
+        public static JsonResponseDTO SelectDeck(string token, string content) 
         {
             DeckSelectionDTO? deckSelectionDTO;
             var user = SecurityHelper.GetUserFromToken(token);
@@ -210,6 +210,18 @@ namespace MonsterTradingCardsGame.Server.Controller
                         var deck = unit.DeckRepository().GetById(deckSelection.DeckId);
                         if(deck != null)
                         {
+                            var deckcards = unit.DeckCardRepository().GetByDeckId(deck.Id);
+                            if(deckcards != null)
+                            {
+                                List<Card> cards = new();
+                                foreach(var deckCard in deckcards)
+                                {
+                                    var c = unit.CardRepository().GetById(deckCard.CardId);
+                                    if (c == null) throw new InvalidDataException();
+                                    cards.Add(c);
+                                }
+                                deck.Cards = cards;
+                            }
                             return new JsonResponseDTO(JsonSerializer.Serialize(deck), System.Net.HttpStatusCode.OK);
                         }
                     }

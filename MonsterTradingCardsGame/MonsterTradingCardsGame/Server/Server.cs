@@ -17,7 +17,7 @@ namespace MonsterTradingCardsGame.Server
 
         public static Server Instance { get { return server.Value; } }
 
-        public static Dictionary<Tuple<string,EHTTPMethod>, Tuple<IController, MethodInfo>> EndPointPaths = new();
+        public static Dictionary<Tuple<string,EHTTPMethod>, Tuple<Type?, MethodInfo>> EndPointPaths = new();
         public static List<MethodInfo> AuthentificationMethods = new();
         private Server()
         {
@@ -42,12 +42,7 @@ namespace MonsterTradingCardsGame.Server
                     {
                         continue;
                     }
-
-                    if (method == null) throw new NullReferenceException();
-                    var cont = method.DeclaringType as IController;
-                    if (cont == null) throw new NullReferenceException();
-
-                    EndPointPaths.Add(new Tuple<string,EHTTPMethod>(attr.Path, attr.HTTPMethod), new Tuple<IController, MethodInfo>(cont, method));
+                    EndPointPaths.Add(new Tuple<string,EHTTPMethod>(attr.Path, attr.HTTPMethod), new Tuple<Type?, MethodInfo>(method.DeclaringType, method));
 
                     var declare = method.DeclaringType;
                     if (declare == null) throw new NullReferenceException();

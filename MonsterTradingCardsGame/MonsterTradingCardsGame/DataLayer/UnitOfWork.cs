@@ -26,6 +26,7 @@ namespace MonsterTradingCardsGame.DataLayer
         private BattleResultsRepository? statisticRepository = null;
         private UserSelectedDeckRepository? userSelectedDeckRepository = null;
         private TradeOfferRepository? tradeOfferRepository = null;
+        private SellingOfferRepository? sellingOfferRepository = null;
 
         #endregion
 
@@ -109,6 +110,15 @@ namespace MonsterTradingCardsGame.DataLayer
                 tradeOfferRepository = new TradeOfferRepository(npgsqlConnection);
             }
             return tradeOfferRepository;
+        }
+
+        public SellingOfferRepository SellingOfferRepository()
+        {
+            if (sellingOfferRepository == null)
+            {
+                sellingOfferRepository = new SellingOfferRepository(npgsqlConnection);
+            }
+            return sellingOfferRepository;
         }
 
 
