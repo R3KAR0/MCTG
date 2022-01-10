@@ -4,11 +4,11 @@
 									GIT-Link: https://github.com/R3KAR0/MCTG
 									*****************************************
 
-									 1.0 Adaptionen der Angabe und Begründung:
+								1.0 Adaptionen der Angabe und zugehörige Begründungen:
 
-1) Authentifizierung wurde mit echten AES-verschlüsselten Token umgesetzt, da Klartext Token ohne verschlüsselter Signatur keine Sicherheit bieten würden
+1) Authentifizierung wurde mit AES-verschlüsselten Token umgesetzt, da Klartext Token ohne verschlüsselter Signatur keine Sicherheit bieten würden.
 2) GET /localhost/users/{username} wurde auf GET /localhost/users geändert, da ein Authentifizierungstoken mitgegeben werden muss und
-	der username zum Login dient (dieser sollte somit NICHT in einer GET Adresse vorkommen)
+	der username zum Login dient (dieser sollte somit NICHT in einer GET Adresse vorkommen).
    
 Die Herangehensweise für GET /localhost/users/{username} hätte folgendermaßen ausgesehen:
 

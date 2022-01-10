@@ -263,10 +263,11 @@ namespace MonsterTradingCardsGame.Server.Controller
                     }
 
                     var resUser = unit.UserRepository().UpdateCoins(user, selling.Price * -1);
+                    var resSeller = unit.UserRepository().UpdateCoins(user, selling.Price);
                     card.Owner = user.Id;
                     var resCard = unit.CardRepository().UpdateOwner(card);
 
-                    if (resUser == null || resCard == null) throw new Exception();
+                    if (resUser == null || resCard == null || resSeller == null) throw new Exception();
       
                     return new JsonResponseDTO("", System.Net.HttpStatusCode.Accepted);
                 }
