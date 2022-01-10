@@ -1,13 +1,6 @@
-﻿using MonsterTradingCardsGame.DataLayer.DTO;
-using MonsterTradingCardsGame.Models;
+﻿using MonsterTradingCardsGame.Models;
 using MonsterTradingCardsGame.Server;
 using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.DataLayer.Repositories
 {

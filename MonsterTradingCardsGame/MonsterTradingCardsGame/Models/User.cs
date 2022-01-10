@@ -1,10 +1,9 @@
 ﻿using System.Text.Json.Serialization;
-using MonsterTradingCardsGame.Interfaces;
 using MonsterTradingCardsGame.Server;
 
 namespace MonsterTradingCardsGame.Models
 {
-    public class User : IJsonConvertable
+    public class User
     {
         public User(string username, string password)
         {

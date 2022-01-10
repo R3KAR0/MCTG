@@ -1,11 +1,5 @@
-﻿using MonsterTradingCardsGame.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.Models
 {
@@ -46,7 +40,7 @@ namespace MonsterTradingCardsGame.Models
         ALL
     }
 
-    public class Card : IJsonConvertable
+    public class Card
     {
         public Card(Guid id,Guid owner, Guid package, string description, EType cardType, EKind kind, EElement element, int damage)
         {

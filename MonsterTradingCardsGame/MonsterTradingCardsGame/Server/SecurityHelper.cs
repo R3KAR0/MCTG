@@ -1,17 +1,6 @@
-﻿using JWT.Algorithms;
-using JWT.Builder;
-using JWT;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Serilog;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using System.Text.Json;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
 using MonsterTradingCardsGame.DataLayer;
 using MonsterTradingCardsGame.Models;
 

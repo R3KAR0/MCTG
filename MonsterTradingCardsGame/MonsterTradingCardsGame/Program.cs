@@ -1,14 +1,8 @@
-﻿using Autofac;
-using MonsterTradingCardsGame.Mapper;
-using MonsterTradingCardsGame.Server.Controller;
+﻿using MonsterTradingCardsGame.Mapper;
 using Npgsql;
 using Serilog;
 using Serilog.Events;
-using System;
-using System.Reflection;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame
 {

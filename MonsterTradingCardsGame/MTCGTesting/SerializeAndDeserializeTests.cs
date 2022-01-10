@@ -2,10 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace MTCGTesting
 {
@@ -22,25 +19,6 @@ namespace MTCGTesting
             {
                 var json = JsonSerializer.Serialize(br);
                 var obj = JsonSerializer.Deserialize<BattleResult>(json);
-                if (obj == null) Assert.Fail();
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-            }
-        }
-
-        [Test]
-        public void SerializeTestBuyRecord()
-        {
-            var u1 = Guid.NewGuid();
-            var u2 = Guid.NewGuid();
-            var c = Guid.NewGuid();
-            var br = new BuyRecord(u1,u2,c,10,DateTime.Now);
-            try
-            {
-                var json = JsonSerializer.Serialize(br);
-                var obj = JsonSerializer.Deserialize<BuyRecord>(json);
                 if (obj == null) Assert.Fail();
             }
             catch (Exception)
@@ -125,23 +103,6 @@ namespace MTCGTesting
             {
                 var json = JsonSerializer.Serialize(tradingOffer);
                 var obj = JsonSerializer.Deserialize<TradeOffer>(json);
-                if (obj == null) Assert.Fail();
-            }
-            catch (Exception)
-            {
-                Assert.Fail();
-            }
-        }
-
-
-        [Test]
-        public void SerializeTestTradeRecord()
-        {
-            var tradeRecord = new TradeRecord(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
-            try
-            {
-                var json = JsonSerializer.Serialize(tradeRecord);
-                var obj = JsonSerializer.Deserialize<TradeRecord>(json);
                 if (obj == null) Assert.Fail();
             }
             catch (Exception)

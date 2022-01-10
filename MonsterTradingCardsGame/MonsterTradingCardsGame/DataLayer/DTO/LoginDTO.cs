@@ -1,14 +1,8 @@
-﻿using MonsterTradingCardsGame.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
 namespace MonsterTradingCardsGame.DataLayer.DTO
 {
-    public class LoginDTO : IJsonConvertable
+    public class LoginDTO
     {
 
         [JsonPropertyName("username")]

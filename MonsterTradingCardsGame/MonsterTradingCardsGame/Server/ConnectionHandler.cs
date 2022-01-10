@@ -1,11 +1,9 @@
-﻿using Autofac;
-using MonsterTradingCardsGame.DataLayer.DTO;
+﻿using MonsterTradingCardsGame.DataLayer.DTO;
 using MonsterTradingCardsGame.Exceptions;
 using Serilog;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
-using System.Text.Json;
 
 namespace MonsterTradingCardsGame.Server
 {
