@@ -42,5 +42,15 @@ namespace MonsterTradingCardsGame.Models
         [JsonPropertyName("cards")]
         public List<Card> Cards { get; set; }
 
+        public bool SetDescription(string newDescription)
+        {
+            if (newDescription.Length > 2048)
+            {
+                return false;
+            }
+            Description = newDescription;
+            return true;
+        }
+
     }
 }

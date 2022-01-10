@@ -11,7 +11,7 @@ namespace MonsterTradingCardsGame.Models
     public class Package : IJsonConvertable
     {
         [JsonPropertyName("id")]
-        public Guid ID { get; private set; }
+        public Guid Id { get; private set; }
         [JsonPropertyName("buyer")]
         public Guid BuyerID { get; private set; }
         [JsonPropertyName("description")]
@@ -27,12 +27,30 @@ namespace MonsterTradingCardsGame.Models
 
         public Package(Guid buyerId)
         {
-            ID = Guid.NewGuid();
+            Id = Guid.NewGuid();
             BuyerID = buyerId;
             Price = Program.GetPackageCreationMapper().PackagePrize;
             CreationDate = DateTime.Now;
             Description = Program.GetPackageCreationMapper().PackageDescription;
             Cards = CreateCards();
+        }
+
+        public Package(Guid iD, Guid buyerID, string description, int price, DateTime creationDate) : this(iD)
+        {
+            BuyerID = buyerID;
+            Description = description ?? throw new ArgumentNullException(nameof(description));
+            Cards = new();
+            Price = price;
+            CreationDate = creationDate;
+        }
+
+        public Package(Guid iD, Guid buyerID, string description, List<Card> cards, int price, DateTime creationDate) : this(iD)
+        {
+            BuyerID = buyerID;
+            Description = description ?? throw new ArgumentNullException(nameof(description));
+            Cards = cards ?? throw new ArgumentNullException(nameof(cards));
+            Price = price;
+            CreationDate = creationDate;
         }
 
         private List<Card> CreateCards()
@@ -55,9 +73,24 @@ namespace MonsterTradingCardsGame.Models
                     type = EType.SPELL;
                 }
                 
-                cards.Add(new Card(Guid.NewGuid(), BuyerID, ID, Program.GetPackageCreationMapper().PackageDescription, type, selectedKind, selectedElement, rand.Next(10,50)));
+                cards.Add(new Card(Guid.NewGuid(), BuyerID, Id, Program.GetPackageCreationMapper().PackageDescription, type, selectedKind, selectedElement, rand.Next(10,50)));
             } 
             return cards;
+        }
+
+        public bool SetDescription(string newDescription)
+        {
+            if (newDescription.Length > 2048)
+            {
+                return false;
+            }
+            Description = newDescription;
+            return true;
+        }
+
+        public void SetCards(List<Card> cards)
+        {
+            Cards = cards;
         }
     }
 }

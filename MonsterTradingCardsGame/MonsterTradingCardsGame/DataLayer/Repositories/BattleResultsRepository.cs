@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace MonsterTradingCardsGame.DataLayer.Repositories
 {
-    public class StatisticRepository : IRepository<BattleResult>
+    public class BattleResultsRepository : IRepository<BattleResult>
     {
         NpgsqlConnection npgsqlConnection = null;
-        public StatisticRepository(NpgsqlConnection npgsqlConnection)
+        public BattleResultsRepository(NpgsqlConnection npgsqlConnection)
         {
             this.npgsqlConnection = npgsqlConnection;
         }
@@ -47,17 +47,53 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public bool Delete(BattleResult obj)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("DELETE FROM battleResults WHERE br_id=@br_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("br_id", obj.Id.ToString());
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+
+            if (res != 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool Delete(Guid id)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("DELETE FROM battleResults WHERE br_id=@br_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("br_id", id.ToString());
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+
+            if (res != 0)
+            {
+                return true;
+            }
+            return false;
         }
 
-        public List<BattleResult?> GetAll()
+        public List<BattleResult> GetAll()
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("SELECT * FROM battleResults", npgsqlConnection);
+
+            List<BattleResult> results = new();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    results.Add(new BattleResult(
+                            new Guid(reader.GetString(reader.GetOrdinal("user1"))),
+                            new Guid(reader.GetString(reader.GetOrdinal("user2"))),
+                            new Guid(reader.GetString(reader.GetOrdinal("winner"))),
+                            reader.GetDateTime(reader.GetOrdinal("battletime"))));
+                }
+                return results;
+            }
         }
 
         public BattleResult? GetById(Guid id)

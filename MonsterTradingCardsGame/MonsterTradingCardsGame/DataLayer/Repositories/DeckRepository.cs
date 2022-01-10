@@ -39,22 +39,72 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public bool Delete(Deck obj)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("DELETE FROM decks WHERE d_id=@d_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("d_id", obj.Id.ToString());
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+
+            if (res != 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool Delete(Guid id)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("DELETE FROM decks WHERE d_id=@d_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("d_id", id.ToString());
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+
+            if (res != 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         public List<Deck?> GetAll()
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("SELECT * FROM decks", npgsqlConnection);
+
+            List<Deck> decks = new List<Deck>();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    decks.Add(new Deck(new Guid(reader.GetString(reader.GetOrdinal("d_id"))),
+                        new Guid(reader.GetString(reader.GetOrdinal("u_id"))),
+                        reader.GetString(reader.GetOrdinal("d_description")),
+                        reader.GetDateTime(reader.GetOrdinal("creationtime"))));
+                }
+                return decks;
+            }
         }
 
         public Deck? GetById(Guid id)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("SELECT * FROM decks WHERE d_id=@d_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("d_id", id.ToString());
+
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.HasRows)
+                {
+                    reader.Read();
+                    return new Deck(new Guid(reader.GetString(reader.GetOrdinal("d_id"))),
+                        new Guid(reader.GetString(reader.GetOrdinal("u_id"))),
+                        reader.GetString(reader.GetOrdinal("d_description")),
+                        reader.GetDateTime(reader.GetOrdinal("creationtime")));
+                }
+            }
+            return null;
         }
 
         public List<Deck> GetByUserId(Guid id)
@@ -79,7 +129,21 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public Deck? Update(Deck obj)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("UPDATE decks SET d_description=@d_description WHERE d_id=@d_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("d_id", obj.Id.ToString());
+            cmd.Parameters.AddWithValue("d_description", obj.Description);
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+            if (res != 0)
+            {
+                return GetById(obj.Id);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

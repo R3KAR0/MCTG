@@ -23,7 +23,9 @@ namespace MonsterTradingCardsGame.DataLayer
         private CardRepository? cardRepository = null;
         private DeckRepository? deckRepository = null;
         private DeckCardRepository? deckCardRepository = null;
-        private StatisticRepository? statisticRepository = null;
+        private BattleResultsRepository? statisticRepository = null;
+        private UserSelectedDeckRepository? userSelectedDeckRepository = null;
+        private TradeOfferRepository? tradeOfferRepository = null;
 
         #endregion
 
@@ -82,14 +84,33 @@ namespace MonsterTradingCardsGame.DataLayer
             return deckCardRepository;
         }
 
-        public StatisticRepository StatisticRepository()
+        public BattleResultsRepository StatisticRepository()
         {
             if (statisticRepository == null)
             {
-                statisticRepository = new StatisticRepository(npgsqlConnection);
+                statisticRepository = new BattleResultsRepository(npgsqlConnection);
             }
             return statisticRepository;
         }
+
+        public UserSelectedDeckRepository UserSelectedDeckRepository()
+        {
+            if (userSelectedDeckRepository == null)
+            {
+                userSelectedDeckRepository = new UserSelectedDeckRepository(npgsqlConnection);
+            }
+            return userSelectedDeckRepository;
+        }
+
+        public TradeOfferRepository TradeOfferRepository()
+        {
+            if (tradeOfferRepository == null)
+            {
+                tradeOfferRepository = new TradeOfferRepository(npgsqlConnection);
+            }
+            return tradeOfferRepository;
+        }
+
 
         #endregion 
 

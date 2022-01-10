@@ -11,6 +11,5 @@ namespace MonsterTradingCardsGame.DataLayer
             void CreateTransaction();
             void Commit();
             void Rollback();
-            //void Save();
     }
 }

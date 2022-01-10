@@ -43,15 +43,37 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public bool Delete(Card obj)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("DELETE FROM cards WHERE c_id=@c_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("c_id", obj.Id.ToString());
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+
+            if (res != 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool Delete(Guid id)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("DELETE FROM cards WHERE c_id=@c_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("c_id", id.ToString());
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+
+            if (res != 0)
+            {
+                return true;
+            }
+            return false;
         }
 
-        public List<Card?> GetAll()
+        public List<Card> GetAll()
         {
             using var cmd = new NpgsqlCommand("SELECT * FROM cards", npgsqlConnection);
 
@@ -126,7 +148,21 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public Card? Update(Card obj)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("UPDATE cards SET c_description=@c_description WHERE c_id=@c_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("c_id", obj.Id.ToString());
+            cmd.Parameters.AddWithValue("c_description", obj.Description);
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+            if (res != 0)
+            {
+                return GetById(obj.Id);
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

@@ -81,7 +81,7 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             return false;
         }
 
-        public List<User?> GetAll()
+        public List<User> GetAll()
         {
             using var cmd = new NpgsqlCommand("SELECT * FROM users", npgsqlConnection);
 
@@ -134,12 +134,10 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public User? Update(User obj)
         {
-            using var cmd = new NpgsqlCommand("UPDATE users SET username=@username,u_password=@u_password,coins=@coins,u_description=@u_description,picture=@picture WHERE u_id=@u_id", npgsqlConnection);
+            using var cmd = new NpgsqlCommand("UPDATE users SET u_password=@u_password,u_description=@u_description,picture=@picture WHERE u_id=@u_id", npgsqlConnection);
 
             cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
-            cmd.Parameters.AddWithValue("username", obj.Username);
             cmd.Parameters.AddWithValue("u_password", obj.Password);
-            cmd.Parameters.AddWithValue("coins", obj.Coins);
             cmd.Parameters.AddWithValue("u_description", obj.ProfileDescription);
             if (obj.Picture == null)
             {
@@ -162,32 +160,32 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
             }
         }
 
-        public User? UpdateSelectedDeck(User obj, Guid selectedDeck)
-        {
-            using var cmd = new NpgsqlCommand("UPDATE users SET d_id=@d_id WHERE u_id=@u_id", npgsqlConnection);
+        //public User? UpdateSelectedDeck(User obj, Guid selectedDeck)
+        //{
+        //    using var cmd = new NpgsqlCommand("UPDATE users SET d_id=@d_id WHERE u_id=@u_id", npgsqlConnection);
 
-            cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
-            cmd.Parameters.AddWithValue("d_id", selectedDeck);
-            if (obj.Picture == null)
-            {
-                cmd.Parameters.AddWithValue("picture", DBNull.Value);
-            }
-            else
-            {
-                cmd.Parameters.AddWithValue("picture", obj.Picture);
-            }
+        //    cmd.Parameters.AddWithValue("u_id", obj.Id.ToString());
+        //    cmd.Parameters.AddWithValue("d_id", selectedDeck);
+        //    if (obj.Picture == null)
+        //    {
+        //        cmd.Parameters.AddWithValue("picture", DBNull.Value);
+        //    }
+        //    else
+        //    {
+        //        cmd.Parameters.AddWithValue("picture", obj.Picture);
+        //    }
 
-            cmd.Prepare();
-            int res = cmd.ExecuteNonQuery();
-            if (res != 0)
-            {
-                return GetById(obj.Id);
-            }
-            else
-            {
-                return null;
-            }
-        }
+        //    cmd.Prepare();
+        //    int res = cmd.ExecuteNonQuery();
+        //    if (res != 0)
+        //    {
+        //        return GetById(obj.Id);
+        //    }
+        //    else
+        //    {
+        //        return null;
+        //    }
+        //}
 
         public bool CheckCredentials(string username, string password)
         {

@@ -14,8 +14,6 @@ namespace MonsterTradingCardsGame
 {
     public class Program
     {
-        public static IContainer? container;
-        private static ContainerBuilder containerBuilder = new();
         private static ConfigMapper? configMapper;
         private static PackageCreationMapper? packageCreationMapper;
         private static RulesMapper? rulesMapper;

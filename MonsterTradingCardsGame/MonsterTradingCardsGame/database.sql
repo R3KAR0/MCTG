@@ -84,6 +84,8 @@ CREATE TABLE deck_card(
 
 CREATE TABLE trading_offer(
 	c_id char(36) PRIMARY KEY,
+	seller char(36) NOT NULL,
+	CONSTRAINT fk_trading_offer_seller FOREIGN KEY(seller) REFERENCES users(u_id),
 	CONSTRAINT fk_trading_offer_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
 	creationtime timestamp NOT NULL,
 	desiredType e_type NOT NULL,
@@ -93,6 +95,8 @@ CREATE TABLE trading_offer(
 
 CREATE TABLE selling_offer(
 	c_id char(36) PRIMARY KEY,
+	seller char(36) NOT NULL,
+	CONSTRAINT fk_selling_offer_seller FOREIGN KEY(seller) REFERENCES users(u_id),
 	CONSTRAINT fk_selling_offer_card FOREIGN KEY(c_id) REFERENCES cards(c_id),
 	creationtime timestamp NOT NULL,
 	price 	integer NOT NULL,

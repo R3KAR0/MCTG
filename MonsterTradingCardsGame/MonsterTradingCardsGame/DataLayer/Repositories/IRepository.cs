@@ -13,6 +13,6 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
         TEntity? GetById(Guid id);
         TEntity? Add(TEntity obj);
         TEntity? Update(TEntity obj);
-        List<TEntity?> GetAll();
+        List<TEntity> GetAll();
     }
 }

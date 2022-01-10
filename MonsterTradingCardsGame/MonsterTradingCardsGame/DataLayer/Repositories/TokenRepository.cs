@@ -42,17 +42,51 @@ namespace MonsterTradingCardsGame.DataLayer.Repositories
 
         public bool Delete(AuthToken obj)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("DELETE FROM auth_token WHERE u_id=@u_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("u_id", obj.UserId.ToString());
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+
+            if (res != 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool Delete(Guid id)
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("DELETE FROM auth_token WHERE u_id=@u_id", npgsqlConnection);
+
+            cmd.Parameters.AddWithValue("u_id", id.ToString());
+
+            cmd.Prepare();
+            int res = cmd.ExecuteNonQuery();
+
+            if (res != 0)
+            {
+                return true;
+            }
+            return false;
         }
 
-        public List<AuthToken?> GetAll()
+        public List<AuthToken> GetAll()
         {
-            throw new NotImplementedException();
+            using var cmd = new NpgsqlCommand("SELECT * FROM auth_token", npgsqlConnection);
+
+            List<AuthToken> tokens = new();
+            using (var reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    tokens.Add(new AuthToken(
+                        new Guid(reader.GetString(reader.GetOrdinal("c_id"))),
+                        reader.GetDateTime(reader.GetOrdinal("valid_until"))));
+                }
+                return tokens;
+            }
         }
 
         public AuthToken? GetById(Guid? id)
