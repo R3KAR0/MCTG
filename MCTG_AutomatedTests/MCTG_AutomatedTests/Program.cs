@@ -1044,9 +1044,60 @@ else
     Console.WriteLine();
 }
 
+Log.Information("TEST 32 SellOffering Representation, EXPECTED: Accepted");
+url = "http://127.0.0.1:8000/sellingoffers";
+
+request = new HttpRequestMessage()
+{
+    RequestUri = new Uri(url),
+    Method = HttpMethod.Post,
+};
+sellID = cards.Cards[5].Id;
+createSell = new StringContent($"{{\"cardid\":\"{sellID}\",\"price\": 5}}", Encoding.UTF8, "application/json");
+request.Content = createSell;
+request.Headers.TryAddWithoutValidation("Authorization", token);
+response = client.Send(request);
+
+resContent = response.Content.ReadAsStringAsync().Result;
+
+if (response.StatusCode == HttpStatusCode.Accepted)
+{
+    Log.Information($"Received: {response.StatusCode} Content: {resContent} -> Test Passed!");
+    Console.WriteLine();
+}
+else
+{
+    Log.Fatal($"Received: {response.StatusCode} -> Test Failed!");
+    Console.WriteLine();
+}
 
 
-Log.Information("TEST 32 RoutingErrors (WrongMethod), EXPECTED: BadRequest");
+url = "http://127.0.0.1:8000/sellingoffers";
+
+request = new HttpRequestMessage()
+{
+    RequestUri = new Uri(url),
+    Method = HttpMethod.Get,
+};
+request.Headers.TryAddWithoutValidation("Authorization", token);
+response = client.Send(request);
+
+resContent = response.Content.ReadAsStringAsync().Result;
+
+if (response.StatusCode == HttpStatusCode.OK && resContent.Length > 0)
+{
+    Log.Information($"Received: {response.StatusCode} Content: {resContent} -> Test Passed!");
+    Console.WriteLine();
+}
+else
+{
+    Log.Fatal($"Received: {response.StatusCode} -> Test Failed!");
+    Console.WriteLine();
+}
+
+
+
+Log.Information("TEST 33 RoutingErrors (WrongMethod), EXPECTED: BadRequest");
 url = "http://127.0.0.1:8000/sellingoffers/buy";
 
 buyOpponent = new StringContent($"{{\"cardid\":\"{sellID}\"}}", Encoding.UTF8, "application/json");
@@ -1071,3 +1122,5 @@ else
     Log.Fatal($"Received: {response.StatusCode} -> Test Failed!");
     Console.WriteLine();
 }
+
+
