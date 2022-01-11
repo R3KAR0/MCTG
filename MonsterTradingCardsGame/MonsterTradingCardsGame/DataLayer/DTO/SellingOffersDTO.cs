@@ -6,7 +6,7 @@ namespace MonsterTradingCardsGame.DataLayer.DTO
     public class SellingOffersDTO
     {
         [JsonPropertyName("sellings")]
-        public List<SellingOffer> sellingOffers = new();
+        public List<SellingOffer> sellingOffers { get; private set; }
 
         public SellingOffersDTO(List<SellingOffer> sellingOffers)
         {
